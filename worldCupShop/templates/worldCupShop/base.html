@@ -22,7 +22,7 @@
   <!-- inject:css -->
   <link rel="stylesheet" href="{% static 'template-star-admin/template/css/vertical-layout-light/style.css' %}">
   <!-- endinject -->
-  <link rel="shortcut icon" href="{% static 'template-star-admin/template/images/favicon-32x32.png' %}" />
+  <link rel="shortcut icon" href="{% static 'template-star-admin/template/images/favicon.png' %}" />
 </head>
 <body>
   <div class="container-scroller">
@@ -54,7 +54,7 @@
         </div>
         <div>
           <a class="navbar-brand brand-logo" href="index.html">
-            <img src="{% static 'template-star-admin/template/images/logo.svg' %}" alt="logo" />
+            <img src="{% static 'template-star-admin/template/images/wCS.png' %}" alt="logo" />
           </a>
           <a class="navbar-brand brand-logo-mini" href="index.html">
             <img src="{% static 'template-star-admin/template/images/logo-mini.svg' %}" alt="logo" />
@@ -470,7 +470,7 @@
             </a>
             <div class="collapse" id="auth">
               <ul class="nav flex-column sub-menu">
-                <li class="nav-item"> <a class="nav-link" href="pages/samples/login.html"> Login </a></li>
+                <li class="nav-item"> <a class="nav-link" href="{% url 'worldCupShop:login' %}"> Login </a></li>
               </ul>
             </div>
           </li>
