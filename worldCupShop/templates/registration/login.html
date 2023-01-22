@@ -1,91 +1,109 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Star Admin2 </title>
-  <!-- plugins:css -->
-  <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/feather/feather.css' %}">
-  <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/mdi/css/materialdesignicons.min.css' %}">
-  <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/ti-icons/css/themify-icons.css' %}">
-  <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/typicons/typicons.css' %}">
-  <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/simple-line-icons/css/simple-line-icons.css' %}">
-  <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/css/vendor.bundle.base.css' %}">
-  <!-- endinject -->
-  <!-- Plugin css for this page -->
-  <!-- End plugin css for this page -->
-  <!-- inject:css -->
-  <link rel="stylesheet" href="{% static 'template-star-admin/template/css/vertical-layout-light/style.css' %}">
-  <!-- endinject -->
-  <link rel="shortcut icon" href="{% static 'template-star-admin/template/images/favicon.png' %}" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AdminLTE 3 | Log in</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css'%}">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="{% static 'AdminLTE-3.2.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css'%}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'AdminLTE-3.2.0/dist/css/adminlte.min.css'%}">
 </head>
-
-<body>
-  <div class="container-scroller">
-    <div class="container-fluid page-body-wrapper full-page-wrapper">
-      <div class="content-wrapper d-flex align-items-center auth px-0">
-        <div class="row w-100 mx-0">
-          <div class="col-lg-4 mx-auto">
-            <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-              <div class="brand-logo">
-                <img src="{% static 'template-star-admin/template/images/logo.svg' %}" alt="logo">
-              </div>
-              <h4>Bienvenue sur WorldCupShop</h4>
-              <h6 class="fw-light">Connectez-vous pour continuer.</h6>
-              <form class="pt-3">
-                <div class="form-group">
-                  <input type="email" class="form-control form-control-lg" id="inputEmail1" placeholder="Username">
-                </div>
-                <div class="form-group">
-                  <input type="password" class="form-control form-control-lg" id="inputPassword1" placeholder="Password">
-                </div>
-                <div class="mt-3">
-                  <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" href="{% static 'template-star-admin/template/index.html' %}">Se connecter</a>
-                </div>
-                <div class="my-2 d-flex justify-content-between align-items-center">
-                  <div class="form-check">
-                    <label class="form-check-label text-muted">
-                      <input type="checkbox" class="form-check-input">
-                      Rester connecté
-                    </label>
-                  </div>
-                  <a href="#" class="auth-link text-black">Mot de passe oubliée ?</a>
-                </div>
-                <div class="mb-2">
-                  <button type="button" class="btn btn-block btn-facebook auth-form-btn">
-                    <i class="ti-facebook me-2"></i>Se connecter avec facebook
-                  </button>
-                </div>
-                <div class="text-center mt-4 fw-light">
-                  Vous n'avez pas de compte ? <a href="register.html" class="text-primary">Créer un compte</a>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- content-wrapper ends -->
+<body class="hold-transition login-page">
+<div class="login-box">
+    <div class="login-logo">
+        <a href="../../index2.html"><b>MANAGE</b>SPORT</a>
     </div>
-    <!-- page-body-wrapper ends -->
-  </div>
-  <!-- container-scroller -->
-  <!-- plugins:js -->
-  <script src="{% static 'template-star-admin/template/vendors/js/vendor.bundle.base.js' %}"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page -->
-  <script src="{% static 'template-star-admin/template/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
-  <!-- End plugin js for this page -->
-  <!-- inject:js -->
-  <script src="{% static 'template-star-admin/template/js/off-canvas.js' %}"></script>
-  <script src="{% static 'template-star-admin/template/js/hoverable-collapse.js' %}"></script>
-  <script src="{% static 'template-star-admin/template/js/template.js' %}"></script>
-  <script src="{% static 'template-star-admin/template/js/settings.js' %}"></script>
-  <script src="{% static 'template-star-admin/template/js/todolist.js' %}"></script>
-  <!-- endinject -->
-</body>
+    <!-- /.login-logo -->
+    <div class="card">
+        <div class="card-body login-card-body">
+            <p class="login-box-msg">Connectez-vous à votre session.</p>
 
+                {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <p>Votre nom d'utilisateur ou votre mot de passe ne correspond pas. Veuillez réessayer !</p>
+                            </div>
+                {% endif %}
+            <form action="{% url 'worldCupShop:login' %}" method="post">
+                {% csrf_token %}
+                <div class="input-group mb-3 flex-column">
+                    <tr>
+                        <td>{{ form.username.label_tag }}</td></br>
+                        <td>{{ form.username }}</td>
+                    </tr>
+                    {% comment %}<input type="email" class="form-control" placeholder="Email">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-envelope"></span>
+            </div>
+          </div>{% endcomment %}
+                </div>
+                <div class="input-group mb-3 flex-column">
+                    <tr>
+                        <td>{{ form.password.label_tag }}</td>
+                        <td>{{ form.password }}</td>
+                    </tr>
+                    {% comment %}<input type="password" class="form-control" placeholder="Password">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>{% endcomment %}
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="icheck-primary">
+                            <input type="checkbox" id="remember">
+                            <label for="remember">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-4">
+                        <input class="btn btn-primary btn-block"
+                                       type="submit" value="Se connecter">
+                        {% comment %}<button type="submit" class="btn btn-primary btn-block">Sign In</button>{% endcomment %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+
+            {% comment %}<div class="social-auth-links text-center mb-3">
+        <p>- OR -</p>
+        <a href="#" class="btn btn-block btn-primary">
+          <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
+        </a>
+        <a href="#" class="btn btn-block btn-danger">
+          <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
+        </a>
+      </div>{% endcomment %}
+            <!-- /.social-auth-links -->
+
+            <p class="mb-1">
+                <a href="forgot-password.html">J'ai oublier mon mot de passe</a>
+            </p>
+            <p class="mb-0">
+                <a href="{% url 'worldCupShop:register' %}" class="text-center">S'inscrire</a>
+            </p>
+        </div>
+        <!-- /.login-card-body -->
+    </div>
+</div>
+<!-- /.login-box -->
+
+<!-- jQuery -->
+<script src="{% static 'AdminLTE-3.2.0/plugins/jquery/jquery.min.js'%}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js'%}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'AdminLTE-3.2.0/dist/js/adminlte.min.js'%}"></script>
+</body>
 </html>

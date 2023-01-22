@@ -1,3 +1,4 @@
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
@@ -5,7 +6,23 @@ from django.template.context_processors import request
 from django.urls import reverse
 from django.views import generic
 
-from worldCupShop.models import Question, Choice
+from worldCupShop.models import Question, Choice, Programme
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.shortcuts import render, redirect
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('worldCupShop:index')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
 
 
 class IndexView(generic.ListView):
@@ -44,3 +61,17 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse('worldCupShop:results', args=(question.id,)))
+
+
+class MyLoginView(LoginView):
+    next_page = 'worldCupShop:index'
+
+
+class MyLogoutView(LogoutView):
+    next_page = 'worldCupShop:login'
+
+
+def programmes(request):
+    programmes = Programme.objects.all()
+
+    return render(request, 'worldCupShop/dashboard_sport.html', context={"programmes": programmes})

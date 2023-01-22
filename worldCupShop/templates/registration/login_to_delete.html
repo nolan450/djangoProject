@@ -1,0 +1,119 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Star Admin2 </title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/feather/feather.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'template-star-admin/template/vendors/mdi/css/materialdesignicons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/ti-icons/css/themify-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/typicons/typicons.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'template-star-admin/template/vendors/simple-line-icons/css/simple-line-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'template-star-admin/template/vendors/css/vendor.bundle.base.css' %}">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link rel="stylesheet" href="{% static 'template-star-admin/template/css/vertical-layout-light/style.css' %}">
+    <!-- endinject -->
+    <link rel="shortcut icon" href="{% static 'template-star-admin/template/images/favicon.png' %}"/>
+</head>
+
+<body>
+<div class="container-scroller">
+    <div class="container-fluid page-body-wrapper full-page-wrapper">
+        <div class="content-wrapper d-flex align-items-center auth px-0">
+            <div class="row w-100 mx-0">
+                <div class="col-lg-4 mx-auto">
+                    <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+                        <div class="brand-logo">
+                            <img src="{% static 'template-star-admin/template/images/logo.svg' %}" alt="logo">
+                        </div>
+                        <h4>Bienvenue sur ManageSport</h4>
+                        <h6 class="fw-light">Connectez-vous pour continuer.</h6>
+
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <p>Your username and password didn't match. Please try again.</p>
+                            </div>
+                        {% endif %}
+                        <form class="pt-3" method="post" action="{% url 'worldCupShop:login' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <tr>
+                                    <td>{{ form.username.label_tag }}</td>
+                                    <td>{{ form.username }}</td>
+                                </tr>
+                                {% comment %}<input type="email" class="form-control form-control-lg" id="inputEmail1"
+                                       placeholder="Username">{% endcomment %}
+                            </div>
+                            <div class="form-group">
+                                <tr>
+                                    <td>{{ form.password.label_tag }}</td>
+                                    <td>{{ form.password }}</td>
+                                </tr>
+                                {% comment %}<input type="password" class="form-control form-control-lg" id="inputPassword1"
+                                       placeholder="Password">{% endcomment %}
+                            </div>
+                            <div class="mt-3">
+                                <input class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
+                                       type="submit" value="login">
+                                <input type="hidden" name="next" value="{{ next }}">
+                                {#                  <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" href="{% static 'template-star-admin/template/index.html' %}">Se connecter</a>#}
+                            </div>
+                            <div class="my-2 d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <label class="form-check-label text-muted">
+                                        <input type="checkbox" class="form-check-input">
+                                        Rester connecté
+                                    </label>
+                                </div>
+                                <a href="#" class="auth-link text-black">Mot de passe oubliée ?</a>
+                            </div>
+                            <div class="mb-2">
+                                <button type="button" class="btn btn-block btn-facebook auth-form-btn">
+                                    <i class="ti-facebook me-2"></i>Se connecter avec facebook
+                                </button>
+                            </div>
+                            <div class="text-center mt-4 fw-light">
+                                Vous n'avez pas de compte ? <a href="register.html" class="text-primary">Créer un
+                                compte</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- content-wrapper ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<script>
+    document.querySelector('#id_username').className = 'w-75';
+    document.querySelector('#id_password').className = 'w-75';
+</script>
+<!-- container-scroller -->
+<!-- plugins:js -->
+<script src="{% static 'template-star-admin/template/vendors/js/vendor.bundle.base.js' %}" type="text/javascript"></script>
+<!-- endinject -->
+<!-- Plugin js for this page -->
+ <script src="{% static 'template-star-admin/template/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- End plugin js for this page -->
+<!-- inject:js -->
+<script src="{% static 'template-star-admin/template/js/off-canvas.js' %}"></script>
+<script src="{% static 'template-star-admin/template/js/hoverable-collapse.js' %}"></script>
+<script src="{% static 'template-star-admin/template/js/settings.js' %}"></script>
+<script src="{% static 'template-star-admin/template/js/todolist.js' %}"></script>
+  <script src="{% static 'template-star-admin/template/js/jquery.cookie.js' %}" type="text/javascript"></script>
+<!-- endinject -->
+</body>
+
+</html>
