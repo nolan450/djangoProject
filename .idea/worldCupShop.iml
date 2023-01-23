@@ -16,7 +16,6 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/worldCupShop/static/AdminLTE-3.2.0/plugins/jsgrid/demos" />
       <excludeFolder url="file://$MODULE_DIR$/worldCupShop/static/AdminLTE-3.2.0/build/scss/parts" />
-      <excludeFolder url="file://$MODULE_DIR$/worldCupShop/static/AdminLTE-3.2.0/dist" />
       <excludeFolder url="file://$MODULE_DIR$/media" />
     </content>
     <orderEntry type="inheritedJdk" />
