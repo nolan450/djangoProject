@@ -16,17 +16,11 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/worldCupShop/static/AdminLTE-3.2.0/plugins/jsgrid/demos" />
       <excludeFolder url="file://$MODULE_DIR$/worldCupShop/static/AdminLTE-3.2.0/build/scss/parts" />
-      <excludeFolder url="file://$MODULE_DIR$/media" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
-    <option name="TEMPLATE_FOLDERS">
-      <list>
-        <option value="$MODULE_DIR$/../manageSport\templates" />
-      </list>
-    </option>
   </component>
 </module>
