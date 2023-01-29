@@ -6,11 +6,22 @@ from django.template.context_processors import request
 from django.urls import reverse
 from django.views import generic
 
+from worldCupShop.forms import AddProgrammeForm
 from worldCupShop.models import Question, Choice, Programme
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.shortcuts import render, redirect
+
+
+# faire une fonction qui vérifie si l'utilisateur est connecté
+# si oui, on affiche la page d'accueil
+# si non, on affiche la page de login
+def index(request):
+    if request.user.is_authenticated:
+        return IndexView.as_view()(request)
+    else:
+        return redirect('worldCupShop:login')
 
 
 def register(request):
@@ -39,6 +50,11 @@ class DetailView(generic.DetailView):
     template_name = 'worldCupShop/detail.html'
 
 
+class AddProgrammeView(generic.CreateView):
+    model = Programme
+    template_name = 'worldCupShop/detail.html'
+
+
 class ResultsView(generic.DetailView):
     model = Question
     template_name = 'worldCupShop/results.html'
@@ -64,14 +80,39 @@ def vote(request, question_id):
 
 
 class MyLoginView(LoginView):
+
+    redirect_authenticated_user = True
     next_page = 'worldCupShop:index'
 
 
 class MyLogoutView(LogoutView):
-    next_page = 'worldCupShop:login'
+    next_page = 'worldCupShop:index'
 
 
 def programmes(request):
-    programmes = Programme.objects.all()
+    programmes = Programme.objects.filter(user=request.user)
 
     return render(request, 'worldCupShop/dashboard_sport.html', context={"programmes": programmes})
+
+
+def add_programme(request):
+    if request.method == 'POST':
+        form = AddProgrammeForm(request.POST, request.FILES)
+        if form.is_valid():
+            # creer un programme
+            programme = Programme()
+            programme.label = form.cleaned_data['label']
+            programme.description = form.cleaned_data['description']
+            programme.thumbnail = form.cleaned_data['thumbnail']
+            programme.save()
+            return redirect('worldCupShop:programmes')
+    else:
+        form = AddProgrammeForm()
+    return render(request, 'worldCupShop/add_programme.html', {'form': form})
+
+
+
+# fonction qui affiche les details d'un programme
+def detail(request, programme_id):
+    programme = get_object_or_404(Programme, pk=programme_id)
+    return render(request, 'worldCupShop/detail.html', {'programme': programme})

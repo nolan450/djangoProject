@@ -2,7 +2,7 @@
 *.log
 *.pot
 *.pyc
-__pycache__
+__pycache__/
 db.sqlite3
 
 # Backup files # 
@@ -125,3 +125,5 @@ Control.ca-list
 Control.ca-bundle 
 Control.system-ca-bundle 
 GitHub.sublime-settings
+.idea/misc.xml
+.idea/worldCupShop.iml

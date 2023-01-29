@@ -29,6 +29,7 @@ class Programme(models.Model):
     label = models.CharField(max_length=100)
     description = models.CharField(max_length=400)
     thumbnail = models.ImageField(upload_to="exercises", blank=True, null=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
 
     def __str__(self):
         return self.label

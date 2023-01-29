@@ -68,7 +68,7 @@
                     <!-- /.col -->
                     <div class="col-4">
                         <input class="btn btn-primary btn-block"
-                                       type="submit" value="Se connecter">
+                                       type="submit" value="Se connecter" style="font-size: 0.8em;">
                         {% comment %}<button type="submit" class="btn btn-primary btn-block">Sign In</button>{% endcomment %}
                         <input type="hidden" name="next" value="{{ next }}">
                     </div>
@@ -88,7 +88,7 @@
             <!-- /.social-auth-links -->
 
             <p class="mb-1">
-                <a href="forgot-password.html">J'ai oublier mon mot de passe</a>
+                <a href="{% url 'worldCupShop:password_reset' %}">J'ai oublier mon mot de passe</a>
             </p>
             <p class="mb-0">
                 <a href="{% url 'worldCupShop:register' %}" class="text-center">S'inscrire</a>
