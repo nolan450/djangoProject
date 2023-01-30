@@ -1,0 +1,259 @@
+{% extends 'worldCupShop/base.html' %}
+{% load static %}
+
+
+{% block breadcrumb %}
+    <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Ajout d'un exercice</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form action="">
+                {% csrf_token %}
+            <label for="select_zoneMuscle">Zone Muscle</label>
+                <select id="select_zoneMuscle" class="form-control">
+                    {% for zoneMuscle in zoneMuscles %}
+                        <option data-id="{{ zoneMuscle.zoneMuscle }}">{{ zoneMuscle.zoneMuscle }}</option>
+                    {% endfor %}
+                </select>
+            <label for="select_exercice_imported">Liste d'exercice</label>
+                <select id="select_exercice_imported" class="form-control">
+                    {% for exercice in exercices %}
+                        <option data-id="{{ exercice.id }}">{{ exercice.nom }}</option>
+                    {% endfor %}
+                </select>
+              {{ form }}
+                </form>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button id="save_exercice_line" type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Programmes</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Mon Profil</a></li>
+                        <li class="breadcrumb-item active">Detail du programme</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+{% endblock %}
+{% block content %}
+    <div class="row mb-3 justify-content-end m-1">
+        <div class="btn-group">
+            <button type="button" class="btn btn-info">Action</button>
+            <button type="button" class="btn btn-info dropdown-toggle dropdown-icon" data-toggle="dropdown"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
+                <a class="dropdown-item" href="#">Ajouter un programme</a>
+                <a class="dropdown-item" href="#">Modifier l'ordre des programmes</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Separated link</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Programme</h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <h1 class="text-primary">
+                            {{ programme.label }}
+                        </h1>
+                        <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium,
+                            adipisci.</p>
+                        <img class="card-img-top" src="/media/{{ programme.thumbnail }}" alt="Dist Photo 1">
+                    </div>
+                    <div id="accordion">
+                        <div class="card mt-3">
+                            <div class="card-header" id="headingOne">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                                            aria-expanded="true" aria-controls="collapseOne">
+                                        Listes des exercices
+                                    </button>
+                                    <button type="button" class="btn btn-default float-right" data-toggle="modal" data-target="#modal-default">
+                                            Ajouter un exercice
+                                    </button>
+                                </h5>
+                            </div>
+
+                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                                 data-parent="#accordion">
+                                <div class="card-body">
+                                    - Exercice 1
+                                    - Exercice 2
+                                    - Exercice 3
+                                </div>
+                            </div>
+                        </div>
+                        {% comment %}<div class="card">
+                            <div class="card-header" id="headingTwo">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link collapsed" data-toggle="collapse"
+                                            data-target="#collapseTwo" aria-expanded="false"
+                                            aria-controls="collapseTwo">
+                                        Collapsible Group Item #2
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
+                                 data-parent="#accordion">
+                                <div class="card-body">
+                                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
+                                    richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor
+                                    brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt
+                                    aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et.
+                                    Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente
+                                    ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
+                                    farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them
+                                    accusamus labore sustainable VHS.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header" id="headingThree">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link collapsed" data-toggle="collapse"
+                                            data-target="#collapseThree" aria-expanded="false"
+                                            aria-controls="collapseThree">
+                                        Collapsible Group Item #3
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
+                                 data-parent="#accordion">
+                                <div class="card-body">
+                                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
+                                    richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor
+                                    brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt
+                                    aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et.
+                                    Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente
+                                    ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
+                                    farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them
+                                    accusamus labore sustainable VHS.
+                                </div>
+                            </div>
+                        </div>{% endcomment %}
+                    </div>
+
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+
+
+
+    {% comment %}<div class="col-md-6">
+          <div class="card card-secondary">
+            <div class="card-header">
+              <h3 class="card-title">Budget</h3>
+
+              <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                  <i class="fas fa-minus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="inputEstimatedBudget">Estimated budget</label>
+                <input type="number" id="inputEstimatedBudget" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="inputSpentBudget">Total amount spent</label>
+                <input type="number" id="inputSpentBudget" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="inputEstimatedDuration">Estimated project duration</label>
+                <input type="number" id="inputEstimatedDuration" class="form-control">
+              </div>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>{% endcomment %}
+{% endblock %}
+{% block script %}
+    <script>
+
+        $('#select_zoneMuscle').on('change', function () {
+            self = $(this)
+            //faire un appel ajax vers ma view qui va me renvoyer les exercices
+            $.ajax({
+                url: "{% url 'worldCupShop:get_exercices_by_zone_muscles' %}",
+                type: 'GET',
+                data: {
+                    'zoneMuscle': self.find(':selected').data('id')
+                },
+                success: function (data) {
+                    $('#select_exercice_imported').html('');
+                    $.each(data, function (key, value) {
+                        $('#select_exercice_imported').append('<option data-id="' + value.id + '">' + value.nom + '</option>');
+                    });
+
+                }
+            })
+        })
+
+        $('#select_exercice_imported').on('change', function () {
+            self = $(this)
+            console.log(self.find(':selected').data('id'));
+            $('#id_label').val(self.find(':selected').val());
+        })
+
+
+        //quand je clique sur le bouton save_exercice_line je récupère les données et je les envoie en ajax
+        $('#save_exercice_line').on('click', function () {
+            self = $(this)
+            //faire un appel ajax vers ma view qui va me renvoyer les exercices
+            $.ajax({
+                url: "{% url 'worldCupShop:add_exercice_line' %}",
+                type: 'POST',
+                data: {
+                    'label': $('#id_label').val(),
+                    'nb_series': $('#id_nb_series').val(),
+                    'nb_repetitions': $('#id_nb_repetitions').val(),
+                    'exercice_id': $('#select_exercice_imported').find(':selected').data('id'),
+                },
+                success: function (data) {
+                    console.log(data);
+                }
+            })
+        })
+
+    </script>
+{% endblock %}

@@ -1,13 +1,13 @@
 from django.contrib.auth.views import LoginView, LogoutView
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.template.context_processors import request
 from django.urls import reverse
 from django.views import generic
 
-from worldCupShop.forms import AddProgrammeForm
-from worldCupShop.models import Question, Choice, Programme
+from worldCupShop.forms import AddProgrammeForm, AddExerciceLineForm
+from worldCupShop.models import Question, Choice, Programme, ExerciceImported, ExerciceLine
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -80,7 +80,6 @@ def vote(request, question_id):
 
 
 class MyLoginView(LoginView):
-
     redirect_authenticated_user = True
     next_page = 'worldCupShop:index'
 
@@ -104,6 +103,7 @@ def add_programme(request):
             programme.label = form.cleaned_data['label']
             programme.description = form.cleaned_data['description']
             programme.thumbnail = form.cleaned_data['thumbnail']
+            programme.user = request.user
             programme.save()
             return redirect('worldCupShop:programmes')
     else:
@@ -111,8 +111,41 @@ def add_programme(request):
     return render(request, 'worldCupShop/add_programme.html', {'form': form})
 
 
+class ProgrammeView(generic.DetailView):
+    model = Programme
+    form = AddExerciceLineForm()
+    template_name = 'worldcupshop/programme/programme_detail.html'
 
-# fonction qui affiche les details d'un programme
-def detail(request, programme_id):
-    programme = get_object_or_404(Programme, pk=programme_id)
-    return render(request, 'worldCupShop/detail.html', {'programme': programme})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form
+        # récupère tous les zoneMuscle des ExerciceImported trié par ordre alphabétique
+        context['zoneMuscles'] = ExerciceImported.objects.values('zoneMuscle').distinct()
+        context['exercices'] = ExerciceImported.objects.all()
+
+        return context
+
+
+#fonction qui retourne tous les exercices sous forme de tableau en fonction de la zoneMuscle
+def get_exercices_by_zone_muscles(request):
+    if request.method == 'GET':
+        zoneMuscle = request.GET.get('zoneMuscle', None)
+        exercices = ExerciceImported.objects.filter(zoneMuscle=zoneMuscle).values()
+        return JsonResponse(list(exercices), safe=False)
+    else:
+        return JsonResponse({"error": "error"}, status=400)
+
+
+#fonction qui enregiste une ligne d'exercice envoyé en ajax dans data et qui enregistre dans la base de données
+def add_exercice_line(request):
+    if request.method == 'POST':
+        data = request.POST
+        exerciceLine = ExerciceLine()
+        exerciceLine.exercice = ExerciceImported.objects.get(id=data['exercice_id'])
+        exerciceLine.label = data['label']
+        exerciceLine.nbSeries = data['nb_series']
+        exerciceLine.nbRepetitions = data['nb_repetitions']
+        exerciceLine.save()
+        return JsonResponse({"success": "success"}, status=200)
+    else:
+        return JsonResponse({"error": "error"}, status=400)

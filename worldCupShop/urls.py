@@ -8,6 +8,7 @@ from manageSport import settings
 app_name = 'worldCupShop'
 urlpatterns = [
                   path('', views.index, name='index'),
+                  path("select2/", include("django_select2.urls")),
                   path('<int:pk>/', views.AddProgrammeView.as_view(), name='detail'),
                   path('<int:pk>/results/', views.ResultsView.as_view(), name='results'),
                   path('<int:question_id>/vote/', views.vote, name='vote'),
@@ -15,7 +16,10 @@ urlpatterns = [
                   path('accounts/logout', views.MyLogoutView.as_view(), name='logout'),
                   path('accounts/register', views.register, name='register'),
                   path('programmes/', views.programmes, name='programmes'),
+                  path('programmes/exercices/get_exercices_by_zone_muscles', views.get_exercices_by_zone_muscles, name='get_exercices_by_zone_muscles'),
+                  path('programmes/exercices/add_exercice_line', views.add_exercice_line, name='add_exercice_line'),
                   path('programmes/add', views.add_programme, name='programmes_add'),
+                  path('programmes/<int:pk>/', views.ProgrammeView.as_view(), name='programmes_detail'),
                   path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
                   path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
                   path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(),

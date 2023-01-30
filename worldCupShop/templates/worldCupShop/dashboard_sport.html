@@ -24,12 +24,14 @@
 
         <div class="col-md-12 col-lg-6 col-xl-4">
                 <div class="card mb-2 bg-gradient-dark">
-                  <img class="card-img-top" src="{% static 'AdminLTE-3.2.0/dist/img/photo1.png' %}" alt="Dist Photo 1">
+                    <a href="{% url 'worldCupShop:programmes_detail' programme.id %}" class="card-programme">
+                  <img class="card-img-top" src="/media/{{ programme.thumbnail }}" alt="Dist Photo 1">
                   <div class="card-img-overlay d-flex flex-column justify-content-end">
                     <h5 class="card-title text-primary text-white">{{ programme.label }}</h5>
                     <p class="card-text text-white pb-2 pt-1">{{ programme.description }}</p>
                     <a href="#" class="text-white">Last update 2 mins ago</a>
                   </div>
+                    </a>
                 </div>
         </div>
     {% endfor %}

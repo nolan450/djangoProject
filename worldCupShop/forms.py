@@ -8,6 +8,26 @@ class LoginForm(AuthenticationForm):
 
 # formulaire d'ajout de programme
 class AddProgrammeForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['placeholder'] = visible.field.label
+
     label = forms.CharField(label='Titre', max_length=100)
-    description = forms.CharField(label='Description', max_length=1000)
+    description = forms.CharField(widget=forms.Textarea, label='Description', max_length=1000)
     thumbnail = forms.ImageField(label='Image')
+
+
+# formulaire d'ajout de ligne d'exercice
+class AddExerciceLineForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['placeholder'] = visible.field.label
+
+    # exercice = forms.CharField(label='Exercice', max_length=100)
+    label = forms.CharField(label='Titre', max_length=100)
+    nbRepetition = forms.IntegerField(label='Nombre de répétition')
+    nbSerie = forms.IntegerField(label='Nombre de série')

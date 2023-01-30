@@ -30,6 +30,7 @@ class Programme(models.Model):
     description = models.CharField(max_length=400)
     thumbnail = models.ImageField(upload_to="exercises", blank=True, null=True)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+    status = models.CharField(max_length=50, default="private")
 
     def __str__(self):
         return self.label
@@ -45,6 +46,16 @@ class Exercice(models.Model):
         return self.label
 
 
+class ExerciceLine(models.Model):
+    label = models.CharField(max_length=100)
+    nbRepetition = models.IntegerField(default=0)
+    nbSerie = models.IntegerField(default=0)
+    exercice = models.ForeignKey(Exercice, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.label
+
+
 class Fiche(models.Model):
     label = models.CharField(max_length=100)
     description = models.CharField(max_length=400)
@@ -52,3 +63,15 @@ class Fiche(models.Model):
 
     def __str__(self):
         return self.label
+
+
+class ExerciceImported(models.Model):
+    partieCorps = models.CharField(max_length=100)
+    equipement = models.CharField(max_length=100)
+    gifUrl = models.CharField(max_length=200)
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=100)
+    zoneMuscleEnglish = models.CharField(max_length=100)
+    nom = models.CharField(max_length=100)
+    zoneMuscle = models.CharField(max_length=100)
+
