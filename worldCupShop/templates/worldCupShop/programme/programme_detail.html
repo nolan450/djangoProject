@@ -5,40 +5,37 @@
 {% block breadcrumb %}
     <div class="modal fade" id="modal-default">
         <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Ajout d'un exercice</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Ajout d'un exercice</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="select_zoneMuscle">Zone Muscle</label>
+                    <select id="select_zoneMuscle" class="form-control">
+                        {% for zoneMuscle in zoneMuscles %}
+                            <option data-id="{{ zoneMuscle.zoneMuscle }}">{{ zoneMuscle.zoneMuscle }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="select_exercice_imported">Liste d'exercice</label>
+                    <select id="select_exercice_imported" class="form-control">
+                        {% for exercice in exercices %}
+                            <option data-id="{{ exercice.id }}">{{ exercice.nom }}</option>
+                        {% endfor %}
+                    </select>
+                    {{ form }}
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="save_exercice_line" type="submit" class="btn btn-primary">Save changes</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <form action="">
-                {% csrf_token %}
-            <label for="select_zoneMuscle">Zone Muscle</label>
-                <select id="select_zoneMuscle" class="form-control">
-                    {% for zoneMuscle in zoneMuscles %}
-                        <option data-id="{{ zoneMuscle.zoneMuscle }}">{{ zoneMuscle.zoneMuscle }}</option>
-                    {% endfor %}
-                </select>
-            <label for="select_exercice_imported">Liste d'exercice</label>
-                <select id="select_exercice_imported" class="form-control">
-                    {% for exercice in exercices %}
-                        <option data-id="{{ exercice.id }}">{{ exercice.nom }}</option>
-                    {% endfor %}
-                </select>
-              {{ form }}
-                </form>
-            </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button id="save_exercice_line" type="button" class="btn btn-primary">Save changes</button>
-            </div>
-          </div>
-          <!-- /.modal-content -->
+            <!-- /.modal-content -->
         </div>
         <!-- /.modal-dialog -->
-      </div>
+    </div>
 
     <div class="content-header">
         <div class="container-fluid">
@@ -103,7 +100,7 @@
                                         Listes des exercices
                                     </button>
                                     <button type="button" class="btn btn-default float-right" data-toggle="modal" data-target="#modal-default">
-                                            Ajouter un exercice
+                                        Ajouter un exercice
                                     </button>
                                 </h5>
                             </div>
@@ -210,34 +207,61 @@
 {% block script %}
     <script>
 
-        $('#select_zoneMuscle').on('change', function () {
-            self = $(this)
-            //faire un appel ajax vers ma view qui va me renvoyer les exercices
-            $.ajax({
-                url: "{% url 'worldCupShop:get_exercices_by_zone_muscles' %}",
-                type: 'GET',
-                data: {
-                    'zoneMuscle': self.find(':selected').data('id')
-                },
-                success: function (data) {
-                    $('#select_exercice_imported').html('');
-                    $.each(data, function (key, value) {
-                        $('#select_exercice_imported').append('<option data-id="' + value.id + '">' + value.nom + '</option>');
-                    });
 
-                }
+
+
+        $(document).ready(function(){
+
+            $('#select_zoneMuscle').on('change', function () {
+                self = $(this)
+                //faire un appel ajax vers ma view qui va me renvoyer les exercices
+                $.ajax({
+                    url: "{% url 'worldCupShop:get_exercices_by_zone_muscles' %}",
+                    type: 'GET',
+                    data: {
+                        'zoneMuscle': self.find(':selected').data('id')
+                    },
+                    success: function (data) {
+                        $('#select_exercice_imported').html('');
+                        $.each(data, function (key, value) {
+                            $('#select_exercice_imported').append('<option data-id="' + value.id + '">' + value.nom + '</option>');
+                        });
+
+                    }
+                })
             })
-        })
 
-        $('#select_exercice_imported').on('change', function () {
-            self = $(this)
-            console.log(self.find(':selected').data('id'));
-            $('#id_label').val(self.find(':selected').val());
+            $('#select_exercice_imported').on('change', function () {
+                self = $(this)
+                console.log(self.find(':selected').data('id'));
+                $('#id_label').val(self.find(':selected').val());
+            })
+
+            //envoyer le formulaire avec un appel Ajax
+            $('#save_exercice_line').on('click', function () {
+                //faire un appel ajax vers ma view qui va me renvoyer les exercices
+
+                $.ajax({
+                    url: "{% url 'worldCupShop:add_exercice_line' %}",
+                    type: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        'label': $('#id_label').val(),
+                        'nb_series': $('#id_nbSerie').val(),
+                        'nb_repetitions': $('#id_nbRepetition').val(),
+                        'exercice_id': $('#select_exercice_imported').find(':selected').data('id'),
+                        'programme_id': '{{ programme.id }}'
+                    },
+                    success: function (data) {
+                        console.log(data);
+                    }
+                })
+            })
         })
 
 
         //quand je clique sur le bouton save_exercice_line je récupère les données et je les envoie en ajax
-        $('#save_exercice_line').on('click', function () {
+        {% comment %}$('#save_exercice_line').on('click', function () {
             self = $(this)
             //faire un appel ajax vers ma view qui va me renvoyer les exercices
             $.ajax({
@@ -253,7 +277,7 @@
                     console.log(data);
                 }
             })
-        })
+        }){% endcomment %}
 
     </script>
 {% endblock %}

@@ -119,8 +119,12 @@ class ProgrammeView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = self.form
-        # récupère tous les zoneMuscle des ExerciceImported trié par ordre alphabétique
-        context['zoneMuscles'] = ExerciceImported.objects.values('zoneMuscle').distinct()
+        zoneMuscle = ExerciceImported.objects.values('zoneMuscle').distinct()
+        for zone in zoneMuscle:
+            zone['zoneMuscle'] = zone['zoneMuscle'].capitalize()
+        zoneMuscle = sorted(zoneMuscle, key=lambda k: k['zoneMuscle'])
+
+        context['zoneMuscles'] = zoneMuscle
         context['exercices'] = ExerciceImported.objects.all()
 
         return context
@@ -131,6 +135,10 @@ def get_exercices_by_zone_muscles(request):
     if request.method == 'GET':
         zoneMuscle = request.GET.get('zoneMuscle', None)
         exercices = ExerciceImported.objects.filter(zoneMuscle=zoneMuscle).values()
+        for exercice in exercices:
+            exercice['nom'] = exercice['nom'].capitalize()
+
+        exercices = sorted(exercices, key=lambda k: k['nom'])
         return JsonResponse(list(exercices), safe=False)
     else:
         return JsonResponse({"error": "error"}, status=400)
@@ -143,8 +151,9 @@ def add_exercice_line(request):
         exerciceLine = ExerciceLine()
         exerciceLine.exercice = ExerciceImported.objects.get(id=data['exercice_id'])
         exerciceLine.label = data['label']
-        exerciceLine.nbSeries = data['nb_series']
-        exerciceLine.nbRepetitions = data['nb_repetitions']
+        exerciceLine.nbSerie = data['nb_series']
+        exerciceLine.nbRepetition = data['nb_repetitions']
+        exerciceLine.programme = Programme.objects.get(id=data['programme_id'])
         exerciceLine.save()
         return JsonResponse({"success": "success"}, status=200)
     else:
