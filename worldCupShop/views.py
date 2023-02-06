@@ -7,7 +7,8 @@ from django.urls import reverse
 from django.views import generic
 
 from worldCupShop.forms import AddProgrammeForm, AddExerciceLineForm
-from worldCupShop.models import Question, Choice, Programme, ExerciceImported, ExerciceLine, SuggestionNom
+from worldCupShop.models import Question, Choice, Programme, ExerciceImported, ExerciceLine, SuggestionNom, \
+    ExerciceLineRepetition
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -153,7 +154,10 @@ def add_exercice_line(request):
         exerciceLine = ExerciceLine()
         exerciceLine.exercice = ExerciceImported.objects.get(id=data['exercice_id'])
         exerciceLine.label = data['label']
+        test = data['nb_repetitions']
         exerciceLine.nbSerie = data['nb_series']
+        exerciceLine_Repetition = ExerciceLineRepetition()
+
         exerciceLine.nbRepetition = data['nb_repetitions']
         exerciceLine.programme = Programme.objects.get(id=data['programme_id'])
         exerciceLine.order = ExerciceLine.objects.filter(programme=exerciceLine.programme).count() + 1

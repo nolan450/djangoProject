@@ -87,3 +87,10 @@ class SuggestionNom(models.Model):
     nom_suggere = models.CharField(max_length=100)
     exercice = models.ForeignKey(ExerciceImported, on_delete=models.CASCADE)
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+
+
+class ExerciceLineRepetition(models.Model):
+    exerciceLine = models.ForeignKey(ExerciceLine, on_delete=models.CASCADE)
+    serieNumber = models.IntegerField(default=0)
+    nbRepetition = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)

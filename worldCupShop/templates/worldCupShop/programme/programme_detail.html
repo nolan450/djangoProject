@@ -12,7 +12,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div id="form_exercice_line" class="modal-body">
                     <label for="select_zoneMuscle">Zone Muscle</label>
                     <select id="select_zoneMuscle" class="form-control">
                         {% for zoneMuscle in zoneMuscles %}
@@ -26,6 +26,14 @@
                         {% endfor %}
                     </select>
                     {{ form }}
+                    <div class="form-check">
+                        <input id="same_nb_repetition" class="form-check-input" type="checkbox">
+                        <label class="form-check-label">Nombre de répétitions différents pour toutes les séries</label>
+                    </div>
+                <hr>
+                    <div id="all_fields_series">
+
+                    </div>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -272,9 +280,59 @@
                 $('#id_label').val(self.find(':selected').val());
             })
 
+
+
+            $('#id_nbSerie').on('change', function () {
+                self = $(this)
+                let nb_series = self.val();
+                let form = $('#all_fields_series');
+                form.html('');
+
+                if($('#same_nb_repetition').prop('checked')) {
+                    for (let i = 1; i <= nb_series; i++) {
+                        console.log(nb_series)
+                        form.append('<label for="id_nbRepetition_' + i +'">Nombre de répétition pour la série ' + i + ' &nbsp;:</label>');
+                        form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition_'+ i +'" data-id="' + i +'">');
+                    }
+                }
+                else {
+                    form.append('<label for="id_nbRepetition">Nombre de répétition &nbsp;:</label>');
+                        form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition">');
+                }
+            })
+
+            // si on coche la case pour avoir le même nombre de répétition pour toutes les séries
+            $('#same_nb_repetition').on('change', function () {
+                self = $(this)
+                let nb_series = $('#id_nbSerie').val();
+                let form = $('#all_fields_series');
+                form.html('');
+
+                if(self.prop('checked')) {
+                    if(nb_series !== 0) {
+                    for (let i = 1; i <= nb_series; i++) {
+                        console.log(nb_series)
+                        form.append('<label for="id_nbRepetition_' + i +'">Nombre de répétition pour la série ' + i + ' &nbsp;:</label>');
+                        form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition_'+ i +'" data-id="' + i +'">');
+                    }
+
+                    }
+                }
+                else {
+                    form.append('<label for="id_nbRepetition">Nombre de répétition &nbsp;:</label>');
+                        form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition">');
+                }
+            })
+
             //envoyer le formulaire avec un appel Ajax
             $('#save_exercice_line').on('click', function () {
                 //faire un appel ajax vers ma view qui va me renvoyer les exercices
+
+                //je recupere toutes les data-id
+                let nb_repetition = [];
+                $('.nb_repetitions').each(function () {
+                    nb_repetition[$(this).data('id')] = $(this).val();
+                })
 
                 $.ajax({
                     url: "{% url 'worldCupShop:add_exercice_line' %}",
@@ -283,7 +341,7 @@
                         csrfmiddlewaretoken: "{{ csrf_token }}",
                         'label': $('#id_label').val(),
                         'nb_series': $('#id_nbSerie').val(),
-                        'nb_repetitions': $('#id_nbRepetition').val(),
+                        'nb_repetitions': nb_repetition,
                         'exercice_id': $('#select_exercice_imported').find(':selected').data('id'),
                         'programme_id': '{{ programme.id }}'
                     },
@@ -308,25 +366,25 @@
                     $('#delete-modal').modal('hide');
 
                     $.ajax({
-                    url: "{% url 'worldCupShop:delete_exercice_line' %}",
-                    type: 'POST',
-                    data: {
-                        csrfmiddlewaretoken: "{{ csrf_token }}",
-                        'exercice_line_id': self.data('id'),
-                    },
-                    success: function (data) {
-                        $(document).Toasts('create', {
-                            class: 'bg-success',
-                            title: 'Suppression de la ligne d\'exercice',
-                            body: 'La suppression de la ligne d\'exercice a bien été faites.'
-                        })
-                        //attendre 2 secondes avant de recharger la page
-                        setTimeout(function () {
+                        url: "{% url 'worldCupShop:delete_exercice_line' %}",
+                        type: 'POST',
+                        data: {
+                            csrfmiddlewaretoken: "{{ csrf_token }}",
+                            'exercice_line_id': self.data('id'),
+                        },
+                        success: function (data) {
+                            $(document).Toasts('create', {
+                                class: 'bg-success',
+                                title: 'Suppression de la ligne d\'exercice',
+                                body: 'La suppression de la ligne d\'exercice a bien été faites.'
+                            })
+                            //attendre 2 secondes avant de recharger la page
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
                             location.reload();
-                        }, 2000);
-                        location.reload();
-                    }
-                })
+                        }
+                    })
 
                 })
             })
@@ -334,7 +392,6 @@
         })
 
 
-        //quand je clique sur le bouton save_exercice_line je récupère les données et je les envoie en ajax
         {% comment %}$('#save_exercice_line').on('click', function () {
             self = $(this)
             //faire un appel ajax vers ma view qui va me renvoyer les exercices
