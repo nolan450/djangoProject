@@ -3,7 +3,7 @@
 
 
 {% block breadcrumb %}
-    <div class="modal fade" id="modal-default">
+    <div class="modal fade" id="modal-exercice-line">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -89,7 +89,7 @@
                         </h1>
                         <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium,
                             adipisci.</p>
-                        <img class="card-img-top" src="/media/{{ programme.thumbnail }}" alt="Dist Photo 1">
+                        <img class="card-img-top w-75" src="/media/{{ programme.thumbnail }}" alt="Dist Photo 1">
                     </div>
                     <div id="accordion">
                         <div class="card mt-3">
@@ -99,7 +99,7 @@
                                             aria-expanded="true" aria-controls="collapseOne">
                                         Listes des exercices
                                     </button>
-                                    <button type="button" class="btn btn-default float-right" data-toggle="modal" data-target="#modal-default">
+                                    <button type="button" class="btn btn-default float-right" data-toggle="modal" data-target="#modal-exercice-line">
                                         Ajouter un exercice
                                     </button>
                                 </h5>
@@ -108,9 +108,44 @@
                             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
                                  data-parent="#accordion">
                                 <div class="card-body">
-                                    - Exercice 1
-                                    - Exercice 2
-                                    - Exercice 3
+                                    {% for exerciceLine in exerciceLines %}
+                                        <div class="card mb-5" style="max-width: 640px;">
+                                            <div class="row no-gutters">
+                                                <div class="col-md-4">
+                                                    <img src="{{ exerciceLine.exercice.gifUrl }}" class="card-img" alt="{{ exerciceLine.label }}">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{{ exerciceLine.label }}</h5>
+                                                        <p class="card-text">
+                                                        <ul>
+                                                            <li>Nombre de répétition : {{ exerciceLine.nbRepetition }}</li>
+                                                            <li>Nombre de série : {{ exerciceLine.nbSerie }}</li>
+                                                            {% comment %}<li>Temps de repos : {{ exerciceLine.tempsRepos }}</li>{% endcomment %}
+                                                        </ul>
+                                                        </p>
+                                                        <p class="card-text mb-0"><small class="text-muted">Dernière modification il y a 3 minutes</small></p>
+                                                        <p class="card-text"><small class="text-muted">Créée le {{ exerciceLine.created_at }}</small></p>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <button type="button" class="btn btn-block btn-default" data-toggle="modal" data-target="#modal-exercice-line">
+                                                                    <i class="fas fa-edit"></i>
+                                                                    Modifier
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <button data-id="{{ exerciceLine.id }}" type="button" class="btn btn-block btn-danger delete_button_exercice_line">
+                                                                    <i class="fas fa-trash"></i>
+                                                                    Supprimer
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+
                                 </div>
                             </div>
                         </div>
@@ -253,10 +288,49 @@
                         'programme_id': '{{ programme.id }}'
                     },
                     success: function (data) {
-                        console.log(data);
+                        $('#modal-exercice-line').modal('hide');
+                        $(document).Toasts('create', {
+                            class: 'bg-success',
+                            title: 'Création de la ligne d\'exercice',
+                            body: 'La création de la ligne d\'exercice a bien été faites.'
+                        })
+                        location.reload();
                     }
                 })
             })
+
+            $('.delete_button_exercice_line').on('click', function () {
+                self = $(this);
+
+                $('#delete-modal').modal('show');
+
+                $('.confirm_delete').on('click', function () {
+                    $('#delete-modal').modal('hide');
+
+                    $.ajax({
+                    url: "{% url 'worldCupShop:delete_exercice_line' %}",
+                    type: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        'exercice_line_id': self.data('id'),
+                    },
+                    success: function (data) {
+                        $(document).Toasts('create', {
+                            class: 'bg-success',
+                            title: 'Suppression de la ligne d\'exercice',
+                            body: 'La suppression de la ligne d\'exercice a bien été faites.'
+                        })
+                        //attendre 2 secondes avant de recharger la page
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2000);
+                        location.reload();
+                    }
+                })
+
+                })
+            })
+
         })
 
 

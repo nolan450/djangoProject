@@ -1,0 +1,852 @@
+{% extends 'worldCupShop/base.html' %}
+{% load static %}
+
+
+{% block breadcrumb %}
+    <div class="modal fade" id="modal-exercice-line">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Ajout d'un exercice</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="select_zoneMuscle">Zone Muscle</label>
+                    <select id="select_zoneMuscle" class="form-control">
+                        {% for zoneMuscle in zoneMuscles %}
+                            <option data-id="{{ zoneMuscle.zoneMuscle }}">{{ zoneMuscle.zoneMuscle }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="select_exercice_imported">Liste d'exercice</label>
+                    <select id="select_exercice_imported" class="form-control">
+                        {% for exercice in exercices %}
+                            <option data-id="{{ exercice.id }}">{{ exercice.nom }}</option>
+                        {% endfor %}
+                    </select>
+                    {{ form }}
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="save_exercice_line" type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Programmes</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Mon Profil</a></li>
+                        <li class="breadcrumb-item active">Detail du programme</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+{% endblock %}
+{% block content %}
+
+    <div class="modal fade" id="modal_suggerer_nom">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Suggerer un nouveau nom</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" id="nom_suggere" placeholder="Suggerer un nouveau nom">
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                    <button id="save_suggerer_nom" type="button" class="btn btn-primary confirm_delete">Envoyer</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+    <div class="row mb-3 justify-content-end m-1">
+        <div class="btn-group">
+            <button type="button" class="btn btn-info">Action</button>
+            <button type="button" class="btn btn-info dropdown-toggle dropdown-icon" data-toggle="dropdown"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
+                <a class="dropdown-item" href="#">Ajouter un programme</a>
+                <a class="dropdown-item" href="#">Modifier l'ordre des programmes</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Separated link</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h4 class="card-title">Liste de tous les exercices</h4>
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="btn-group w-50 mb-4 d-flex m-auto">
+                        <a id="affichage_datatable" class="btn btn-info active mr-2" href="javascript:void(0)" data-filter="all"> Afficher sous forme de tableau</a>
+                        <a id="affichage_container" class="btn btn-info ml-2" href="javascript:void(0)" data-filter="1"> Afficher sous forme de container </a>
+                        {% comment %}<a class="btn btn-info" href="javascript:void(0)" data-filter="2"> Category 2 (BLACK) </a>
+                        <a class="btn btn-info" href="javascript:void(0)" data-filter="3"> Category 3 (COLORED) </a>
+                        <a class="btn btn-info" href="javascript:void(0)" data-filter="4"> Category 4 (COLORED, BLACK) </a>{% endcomment %}
+                        {% comment %}{% for zoneMuscle in zoneMuscles %}
+                            <a class="btn btn-info" href="javascript:void(0)" data-filter="2"> {{ zoneMuscle.zoneMuscle }} </a>
+                        {% endfor %}{% endcomment %}
+                    </div>
+                    <div class="mb-2">
+                        <a class="btn btn-secondary" href="javascript:void(0)" data-shuffle=""> Shuffle items </a>
+                        <div class="float-right">
+                            <select class="custom-select" style="width: auto;" data-sortorder="">
+                                <option value="index"> Sort by Position </option>
+                                <option value="sortData"> Sort by Custom Data </option>
+                            </select>
+                            <div class="btn-group">
+                                <a class="btn btn-default" href="javascript:void(0)" data-sortasc=""> Ascending </a>
+                                <a class="btn btn-default" href="javascript:void(0)" data-sortdesc=""> Descending </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div id="container_exercice" class="filter-container p-0 row overflow-auto d-none" style="padding: 3px; position: relative; width: 100%; display: flex; flex-wrap: wrap; height: 515px;">
+                        {% for exercice in exercices %}
+                            <div class="filtr-item col-sm-1 m-3 p-3 bg-light rounded-1" data-category="2" data-sort="white sample">
+                            <a href="{{ exercice.gifUrl }}" data-toggle="lightbox" data-title="{{ exercice.name }}">
+                                <img src="{{ exercice.gifUrl }}" class="img-fluid mb-2" alt="white sample">
+                            </a>
+                            <p class="text-center display-6">{{ exercice.name }}</p>
+                            </div>
+                        {% endfor %}
+
+                        {% comment %}<div class="filtr-item col-sm-2" data-category="2, 4" data-sort="black sample" style="opacity: 1; transform: scale(1) translate3d(263px, 0px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/000000.png?text=2" data-toggle="lightbox" data-title="sample 2 - black">
+                                <img src="https://via.placeholder.com/300/000000?text=2" class="img-fluid mb-2" alt="black sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="3, 4" data-sort="red sample" style="opacity: 1; transform: scale(1) translate3d(526px, 0px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/FF0000/FFFFFF.png?text=3" data-toggle="lightbox" data-title="sample 3 - red">
+                                <img src="https://via.placeholder.com/300/FF0000/FFFFFF?text=3" class="img-fluid mb-2" alt="red sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="3, 4" data-sort="red sample" style="opacity: 1; transform: scale(1) translate3d(789px, 0px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/FF0000/FFFFFF.png?text=4" data-toggle="lightbox" data-title="sample 4 - red">
+                                <img src="https://via.placeholder.com/300/FF0000/FFFFFF?text=4" class="img-fluid mb-2" alt="red sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="2, 4" data-sort="black sample" style="opacity: 1; transform: scale(1) translate3d(1052px, 0px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/000000.png?text=5" data-toggle="lightbox" data-title="sample 5 - black">
+                                <img src="https://via.placeholder.com/300/000000?text=5" class="img-fluid mb-2" alt="black sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="1" data-sort="white sample" style="opacity: 1; transform: scale(1) translate3d(1315px, 0px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/FFFFFF.png?text=6" data-toggle="lightbox" data-title="sample 6 - white">
+                                <img src="https://via.placeholder.com/300/FFFFFF?text=6" class="img-fluid mb-2" alt="white sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="1" data-sort="white sample" style="opacity: 1; transform: scale(1) translate3d(0px, 256px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/FFFFFF.png?text=7" data-toggle="lightbox" data-title="sample 7 - white">
+                                <img src="https://via.placeholder.com/300/FFFFFF?text=7" class="img-fluid mb-2" alt="white sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="2, 4" data-sort="black sample" style="opacity: 1; transform: scale(1) translate3d(263px, 256px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/000000.png?text=8" data-toggle="lightbox" data-title="sample 8 - black">
+                                <img src="https://via.placeholder.com/300/000000?text=8" class="img-fluid mb-2" alt="black sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="3, 4" data-sort="red sample" style="opacity: 1; transform: scale(1) translate3d(526px, 256px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/FF0000/FFFFFF.png?text=9" data-toggle="lightbox" data-title="sample 9 - red">
+                                <img src="https://via.placeholder.com/300/FF0000/FFFFFF?text=9" class="img-fluid mb-2" alt="red sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="1" data-sort="white sample" style="opacity: 1; transform: scale(1) translate3d(789px, 256px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/FFFFFF.png?text=10" data-toggle="lightbox" data-title="sample 10 - white">
+                                <img src="https://via.placeholder.com/300/FFFFFF?text=10" class="img-fluid mb-2" alt="white sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="1" data-sort="white sample" style="opacity: 1; transform: scale(1) translate3d(1052px, 256px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/FFFFFF.png?text=11" data-toggle="lightbox" data-title="sample 11 - white">
+                                <img src="https://via.placeholder.com/300/FFFFFF?text=11" class="img-fluid mb-2" alt="white sample">
+                            </a>
+                        </div>
+                        <div class="filtr-item col-sm-2" data-category="2, 4" data-sort="black sample" style="opacity: 1; transform: scale(1) translate3d(1315px, 256px, 0px); backface-visibility: hidden; perspective: 1000px; transform-style: preserve-3d; position: absolute; width: 260.4px; transition: all 0.5s ease-out 0ms, width 1ms ease 0s;">
+                            <a href="https://via.placeholder.com/1200/000000.png?text=12" data-toggle="lightbox" data-title="sample 12 - black">
+                                <img src="https://via.placeholder.com/300/000000?text=12" class="img-fluid mb-2" alt="black sample">
+                            </a>
+                        </div>{% endcomment %}
+                    </div>
+                    <div id="data_table_exercice" class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">DataTable with minimal features & hover style</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <table id="example1" class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Partie du corps</th>
+                                    <th>Muscle ciblé</th>
+                                    <th>Nom</th>
+                                    <th>Gif</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for exercice in exercices %}
+                                    <tr>
+                                        <td>{{ exercice.partieCorps }}</td>
+                                        <td>{{ exercice.zoneMuscle }}</td>
+                                        <td>{{ exercice.nom }}</td>
+                                        <td><img class="w-25" src="{{ exercice.gifUrl }}" alt="{{ exercice.nom }}"></td>
+                                        <td>
+                                            <button data-id="{{ exercice.id }}" type="button" class="btn btn-primary suggerer_nom">Suggérer un nom différent</button>
+                                        </td>
+                                    </tr>
+                                    {% comment %}<div class="filtr-item col-sm-1 m-3 p-3 bg-light rounded-1" data-category="2" data-sort="white sample">
+                                        <a href="{{ exercice.gifUrl }}" data-toggle="lightbox" data-title="{{ exercice.name }}">
+                                            <img src="{{ exercice.gifUrl }}" class="img-fluid mb-2" alt="white sample">
+                                        </a>
+                                        <p class="text-center display-6">{{ exercice.name }}</p>
+                                    </div>{% endcomment %}
+                                {% endfor %}
+{% comment %}                                <tr>
+                                    <td>Trident</td>
+                                    <td>Internet
+                                        Explorer 5.0
+                                    </td>
+                                    <td>Win 95+</td>
+                                    <td>5</td>
+                                    <td>C</td>
+                                </tr>
+                                <tr>
+                                    <td>Trident</td>
+                                    <td>Internet
+                                        Explorer 5.5
+                                    </td>
+                                    <td>Win 95+</td>
+                                    <td>5.5</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Trident</td>
+                                    <td>Internet
+                                        Explorer 6
+                                    </td>
+                                    <td>Win 98+</td>
+                                    <td>6</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Trident</td>
+                                    <td>Internet Explorer 7</td>
+                                    <td>Win XP SP2+</td>
+                                    <td>7</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Trident</td>
+                                    <td>AOL browser (AOL desktop)</td>
+                                    <td>Win XP</td>
+                                    <td>6</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Firefox 1.0</td>
+                                    <td>Win 98+ / OSX.2+</td>
+                                    <td>1.7</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Firefox 1.5</td>
+                                    <td>Win 98+ / OSX.2+</td>
+                                    <td>1.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Firefox 2.0</td>
+                                    <td>Win 98+ / OSX.2+</td>
+                                    <td>1.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Firefox 3.0</td>
+                                    <td>Win 2k+ / OSX.3+</td>
+                                    <td>1.9</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Camino 1.0</td>
+                                    <td>OSX.2+</td>
+                                    <td>1.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Camino 1.5</td>
+                                    <td>OSX.3+</td>
+                                    <td>1.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Netscape 7.2</td>
+                                    <td>Win 95+ / Mac OS 8.6-9.2</td>
+                                    <td>1.7</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Netscape Browser 8</td>
+                                    <td>Win 98SE+</td>
+                                    <td>1.7</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Netscape Navigator 9</td>
+                                    <td>Win 98+ / OSX.2+</td>
+                                    <td>1.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.0</td>
+                                    <td>Win 95+ / OSX.1+</td>
+                                    <td>1</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.1</td>
+                                    <td>Win 95+ / OSX.1+</td>
+                                    <td>1.1</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.2</td>
+                                    <td>Win 95+ / OSX.1+</td>
+                                    <td>1.2</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.3</td>
+                                    <td>Win 95+ / OSX.1+</td>
+                                    <td>1.3</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.4</td>
+                                    <td>Win 95+ / OSX.1+</td>
+                                    <td>1.4</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.5</td>
+                                    <td>Win 95+ / OSX.1+</td>
+                                    <td>1.5</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.6</td>
+                                    <td>Win 95+ / OSX.1+</td>
+                                    <td>1.6</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.7</td>
+                                    <td>Win 98+ / OSX.1+</td>
+                                    <td>1.7</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Mozilla 1.8</td>
+                                    <td>Win 98+ / OSX.1+</td>
+                                    <td>1.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Seamonkey 1.1</td>
+                                    <td>Win 98+ / OSX.2+</td>
+                                    <td>1.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Gecko</td>
+                                    <td>Epiphany 2.20</td>
+                                    <td>Gnome</td>
+                                    <td>1.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Webkit</td>
+                                    <td>Safari 1.2</td>
+                                    <td>OSX.3</td>
+                                    <td>125.5</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Webkit</td>
+                                    <td>Safari 1.3</td>
+                                    <td>OSX.3</td>
+                                    <td>312.8</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Webkit</td>
+                                    <td>Safari 2.0</td>
+                                    <td>OSX.4+</td>
+                                    <td>419.3</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Webkit</td>
+                                    <td>Safari 3.0</td>
+                                    <td>OSX.4+</td>
+                                    <td>522.1</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Webkit</td>
+                                    <td>OmniWeb 5.5</td>
+                                    <td>OSX.4+</td>
+                                    <td>420</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Webkit</td>
+                                    <td>iPod Touch / iPhone</td>
+                                    <td>iPod</td>
+                                    <td>420.1</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Webkit</td>
+                                    <td>S60</td>
+                                    <td>S60</td>
+                                    <td>413</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Opera 7.0</td>
+                                    <td>Win 95+ / OSX.1+</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Opera 7.5</td>
+                                    <td>Win 95+ / OSX.2+</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Opera 8.0</td>
+                                    <td>Win 95+ / OSX.2+</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Opera 8.5</td>
+                                    <td>Win 95+ / OSX.2+</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Opera 9.0</td>
+                                    <td>Win 95+ / OSX.3+</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Opera 9.2</td>
+                                    <td>Win 88+ / OSX.3+</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Opera 9.5</td>
+                                    <td>Win 88+ / OSX.3+</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Opera for Wii</td>
+                                    <td>Wii</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Nokia N800</td>
+                                    <td>N800</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Presto</td>
+                                    <td>Nintendo DS browser</td>
+                                    <td>Nintendo DS</td>
+                                    <td>8.5</td>
+                                    <td>C/A<sup>1</sup></td>
+                                </tr>
+                                <tr>
+                                    <td>KHTML</td>
+                                    <td>Konqureror 3.1</td>
+                                    <td>KDE 3.1</td>
+                                    <td>3.1</td>
+                                    <td>C</td>
+                                </tr>
+                                <tr>
+                                    <td>KHTML</td>
+                                    <td>Konqureror 3.3</td>
+                                    <td>KDE 3.3</td>
+                                    <td>3.3</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>KHTML</td>
+                                    <td>Konqureror 3.5</td>
+                                    <td>KDE 3.5</td>
+                                    <td>3.5</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Tasman</td>
+                                    <td>Internet Explorer 4.5</td>
+                                    <td>Mac OS 8-9</td>
+                                    <td>-</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Tasman</td>
+                                    <td>Internet Explorer 5.1</td>
+                                    <td>Mac OS 7.6-9</td>
+                                    <td>1</td>
+                                    <td>C</td>
+                                </tr>
+                                <tr>
+                                    <td>Tasman</td>
+                                    <td>Internet Explorer 5.2</td>
+                                    <td>Mac OS 8-X</td>
+                                    <td>1</td>
+                                    <td>C</td>
+                                </tr>
+                                <tr>
+                                    <td>Misc</td>
+                                    <td>NetFront 3.1</td>
+                                    <td>Embedded devices</td>
+                                    <td>-</td>
+                                    <td>C</td>
+                                </tr>
+                                <tr>
+                                    <td>Misc</td>
+                                    <td>NetFront 3.4</td>
+                                    <td>Embedded devices</td>
+                                    <td>-</td>
+                                    <td>A</td>
+                                </tr>
+                                <tr>
+                                    <td>Misc</td>
+                                    <td>Dillo 0.8</td>
+                                    <td>Embedded devices</td>
+                                    <td>-</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Misc</td>
+                                    <td>Links</td>
+                                    <td>Text only</td>
+                                    <td>-</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Misc</td>
+                                    <td>Lynx</td>
+                                    <td>Text only</td>
+                                    <td>-</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Misc</td>
+                                    <td>IE Mobile</td>
+                                    <td>Windows Mobile 6</td>
+                                    <td>-</td>
+                                    <td>C</td>
+                                </tr>
+                                <tr>
+                                    <td>Misc</td>
+                                    <td>PSP browser</td>
+                                    <td>PSP</td>
+                                    <td>-</td>
+                                    <td>C</td>
+                                </tr>
+                                <tr>
+                                    <td>Other browsers</td>
+                                    <td>All others</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>U</td>
+                                </tr>
+                                </tbody>{% endcomment %}
+                                <tfoot>
+                                <tr>
+                                    <th>Partie du corps</th>
+                                    <th>Muscle ciblé</th>
+                                    <th>Nom</th>
+                                    <th>Gif</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    {% comment %}<div class="col-md-6">
+          <div class="card card-secondary">
+            <div class="card-header">
+              <h3 class="card-title">Budget</h3>
+
+              <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                  <i class="fas fa-minus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="inputEstimatedBudget">Estimated budget</label>
+                <input type="number" id="inputEstimatedBudget" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="inputSpentBudget">Total amount spent</label>
+                <input type="number" id="inputSpentBudget" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="inputEstimatedDuration">Estimated project duration</label>
+                <input type="number" id="inputEstimatedDuration" class="form-control">
+              </div>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>{% endcomment %}
+{% endblock %}
+{% block script %}
+    <script>
+
+
+
+
+        $(document).ready(function(){
+
+                $('#example1').DataTable({
+                    "lengthChange": false,
+                    "searching": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                    "paging": true,
+                    "pageLength": 10,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                {% comment %}$('#example2').DataTable({
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                });{% endcomment %}
+
+            $('#affichage_container').on('click', function () {
+                $('#container_exercice').removeClass('d-none');
+                $('#data_table_exercice').addClass('d-none');
+            })
+
+            $('#affichage_datatable').on('click', function () {
+                $('#data_table_exercice').removeClass('d-none');
+                $('#container_exercice').addClass('d-none');
+            })
+
+
+
+            $('#select_zoneMuscle').on('change', function () {
+                self = $(this)
+                //faire un appel ajax vers ma view qui va me renvoyer les exercices
+                $.ajax({
+                    url: "{% url 'worldCupShop:get_exercices_by_zone_muscles' %}",
+                    type: 'GET',
+                    data: {
+                        'zoneMuscle': self.find(':selected').data('id')
+                    },
+                    success: function (data) {
+                        $('#select_exercice_imported').html('');
+                        $.each(data, function (key, value) {
+                            $('#select_exercice_imported').append('<option data-id="' + value.id + '">' + value.nom + '</option>');
+                        });
+
+                    }
+                })
+            })
+
+            $('#select_exercice_imported').on('change', function () {
+                self = $(this)
+                console.log(self.find(':selected').data('id'));
+                $('#id_label').val(self.find(':selected').val());
+            })
+
+            $('.suggerer_nom').on('click', function () {
+                self = $(this)
+                var exercice_id = self.data('id');
+
+                $('#modal_suggerer_nom').modal('show');
+                $('#save_suggerer_nom').on('click', function () {
+
+                    $.ajax({
+                        url: "{% url 'worldCupShop:add_suggestion_exercice' %}",
+                        type: 'POST',
+                        data: {
+                            csrfmiddlewaretoken: "{{ csrf_token }}",
+                            'nom_suggere': $('#nom_suggere').val(),
+                            'exercice_id': exercice_id
+                        },
+                        success: function (data) {
+                            $('#modal_suggerer_nom').modal('hide');
+                            $(document).Toasts('create', {
+                            class: 'bg-success',
+                            title: 'Suggestion.',
+                            body: 'La suggestion a bien été faites.'
+                            })
+                        },
+                        error: function (data) {
+                        }
+                    })
+                })
+
+            })
+
+
+            $('#save_exercice_line').on('click', function () {
+
+                $.ajax({
+                    url: "{% url 'worldCupShop:add_exercice_line' %}",
+                    type: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        'label': $('#id_label').val(),
+                        'nb_series': $('#id_nbSerie').val(),
+                        'nb_repetitions': $('#id_nbRepetition').val(),
+                        'exercice_id': $('#select_exercice_imported').find(':selected').data('id'),
+                        'programme_id': '{{ programme.id }}'
+                    },
+                    success: function (data) {
+                        $('#modal-exercice-line').modal('hide');
+                        $(document).Toasts('create', {
+                            class: 'bg-success',
+                            title: 'Création de la ligne d\'exercice',
+                            body: 'La création de la ligne d\'exercice a bien été faites.'
+                        })
+                        location.reload();
+                    }
+                })
+            })
+
+            $('.delete_button_exercice_line').on('click', function () {
+                self = $(this);
+
+                $('#delete-modal').modal('show');
+
+                $('.confirm_delete').on('click', function () {
+                    $('#delete-modal').modal('hide');
+
+                    $.ajax({
+                        url: "{% url 'worldCupShop:delete_exercice_line' %}",
+                        type: 'POST',
+                        data: {
+                            csrfmiddlewaretoken: "{{ csrf_token }}",
+                            'exercice_line_id': self.data('id'),
+                        },
+                        success: function (data) {
+                            $(document).Toasts('create', {
+                                class: 'bg-success',
+                                title: 'Suppression de la ligne d\'exercice',
+                                body: 'La suppression de la ligne d\'exercice a bien été faites.'
+                            })
+                            //attendre 2 secondes avant de recharger la page
+                            setTimeout(function () {
+                                location.reload();
+                            }, 2000);
+                            location.reload();
+                        }
+                    })
+
+                })
+            })
+
+        })
+
+
+        //quand je clique sur le bouton save_exercice_line je récupère les données et je les envoie en ajax
+        {% comment %}$('#save_exercice_line').on('click', function () {
+            self = $(this)
+            //faire un appel ajax vers ma view qui va me renvoyer les exercices
+            $.ajax({
+                url: "{% url 'worldCupShop:add_exercice_line' %}",
+                type: 'POST',
+                data: {
+                    'label': $('#id_label').val(),
+                    'nb_series': $('#id_nb_series').val(),
+                    'nb_repetitions': $('#id_nb_repetitions').val(),
+                    'exercice_id': $('#select_exercice_imported').find(':selected').data('id'),
+                },
+                success: function (data) {
+                    console.log(data);
+                }
+            })
+        }){% endcomment %}
+
+    </script>
+{% endblock %}

@@ -29,5 +29,5 @@ class AddExerciceLineForm(forms.Form):
 
     # exercice = forms.CharField(label='Exercice', max_length=100)
     label = forms.CharField(label='Titre', max_length=100)
-    nbRepetition = forms.IntegerField(label='Nombre de répétition')
     nbSerie = forms.IntegerField(label='Nombre de série')
+    nbRepetition = forms.IntegerField(label='Nombre de répétition')

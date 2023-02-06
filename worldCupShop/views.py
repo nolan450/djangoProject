@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views import generic
 
 from worldCupShop.forms import AddProgrammeForm, AddExerciceLineForm
-from worldCupShop.models import Question, Choice, Programme, ExerciceImported, ExerciceLine
+from worldCupShop.models import Question, Choice, Programme, ExerciceImported, ExerciceLine, SuggestionNom
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -126,6 +126,8 @@ class ProgrammeView(generic.DetailView):
 
         context['zoneMuscles'] = zoneMuscle
         context['exercices'] = ExerciceImported.objects.all()
+        # retourne tous les exercicelines du programme filtré par ordre croissan
+        context['exerciceLines'] = ExerciceLine.objects.filter(programme=self.object).order_by('order')
 
         return context
 
@@ -154,7 +156,47 @@ def add_exercice_line(request):
         exerciceLine.nbSerie = data['nb_series']
         exerciceLine.nbRepetition = data['nb_repetitions']
         exerciceLine.programme = Programme.objects.get(id=data['programme_id'])
+        exerciceLine.order = ExerciceLine.objects.filter(programme=exerciceLine.programme).count() + 1
+
         exerciceLine.save()
         return JsonResponse({"success": "success"}, status=200)
     else:
         return JsonResponse({"error": "error"}, status=400)
+
+
+def delete_exercice_line(request):
+    if request.method == 'POST':
+        data = request.POST
+        exerciceLine = ExerciceLine.objects.get(id=data['exercice_line_id'])
+        exerciceLine.delete()
+        return JsonResponse({"success": "success"}, status=200)
+    else:
+        return JsonResponse({"error": "error"}, status=400)
+
+def get_all_exercices(request):
+    if request.method == 'GET':
+        exercices = ExerciceImported.objects.all().values()
+        for exercice in exercices:
+            exercice['nom'] = exercice['nom'].capitalize()
+
+        zoneMuscles = ExerciceImported.objects.values('zoneMuscle').distinct()
+
+        exercices = sorted(exercices, key=lambda k: k['nom'])
+        return render(request, 'worldCupShop/exercice/exercices.html', {'exercices': exercices, 'zoneMuscles': zoneMuscles})
+    else:
+        return JsonResponse({"error": "error"}, status=400)
+
+
+#fonction qui recupere le nom suggere par l'utilisateur
+def add_suggestion_exercice(request):
+    if request.method == 'POST':
+        data = request.POST
+        suggestion = SuggestionNom()
+        suggestion.nom_suggere = data['nom_suggere']
+        suggestion.exercice = ExerciceImported.objects.get(id=data['exercice_id'])
+        suggestion.user = request.user
+        suggestion.save()
+        return JsonResponse({"success": "success"}, status=200)
+    else:
+        return JsonResponse({"error": "error"}, status=400)
+

@@ -67,6 +67,8 @@ class ExerciceLine(models.Model):
     nbSerie = models.IntegerField(default=0)
     exercice = models.ForeignKey(ExerciceImported, on_delete=models.CASCADE)
     programme = models.ForeignKey(Programme, on_delete=models.CASCADE, default=1)
+    order = models.IntegerField(default=1000)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return self.label
@@ -80,3 +82,8 @@ class Fiche(models.Model):
     def __str__(self):
         return self.label
 
+
+class SuggestionNom(models.Model):
+    nom_suggere = models.CharField(max_length=100)
+    exercice = models.ForeignKey(ExerciceImported, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
