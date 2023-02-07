@@ -329,10 +329,13 @@
                 //faire un appel ajax vers ma view qui va me renvoyer les exercices
 
                 //je recupere toutes les data-id
-                let nb_repetition = [];
+                let nb_repetition = {};
                 $('.nb_repetitions').each(function () {
-                    nb_repetition[$(this).data('id')] = $(this).val();
+                    if ($(this).val() !== '') {
+                        nb_repetition[$(this).data('id')] = $(this).val();
+                    }
                 })
+
 
                 $.ajax({
                     url: "{% url 'worldCupShop:add_exercice_line' %}",
@@ -341,7 +344,7 @@
                         csrfmiddlewaretoken: "{{ csrf_token }}",
                         'label': $('#id_label').val(),
                         'nb_series': $('#id_nbSerie').val(),
-                        'nb_repetitions': nb_repetition,
+                        'nb_repetitions': JSON.stringify(nb_repetition),
                         'exercice_id': $('#select_exercice_imported').find(':selected').data('id'),
                         'programme_id': '{{ programme.id }}'
                     },

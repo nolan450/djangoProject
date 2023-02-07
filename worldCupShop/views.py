@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -133,7 +135,7 @@ class ProgrammeView(generic.DetailView):
         return context
 
 
-#fonction qui retourne tous les exercices sous forme de tableau en fonction de la zoneMuscle
+# fonction qui retourne tous les exercices sous forme de tableau en fonction de la zoneMuscle
 def get_exercices_by_zone_muscles(request):
     if request.method == 'GET':
         zoneMuscle = request.GET.get('zoneMuscle', None)
@@ -147,18 +149,26 @@ def get_exercices_by_zone_muscles(request):
         return JsonResponse({"error": "error"}, status=400)
 
 
-#fonction qui enregiste une ligne d'exercice envoyé en ajax dans data et qui enregistre dans la base de données
+# fonction qui enregiste une ligne d'exercice envoyé en ajax dans data et qui enregistre dans la base de données
 def add_exercice_line(request):
     if request.method == 'POST':
         data = request.POST
         exerciceLine = ExerciceLine()
         exerciceLine.exercice = ExerciceImported.objects.get(id=data['exercice_id'])
         exerciceLine.label = data['label']
-        test = data['nb_repetitions']
-        exerciceLine.nbSerie = data['nb_series']
-        exerciceLine_Repetition = ExerciceLineRepetition()
+        # décoder le json test
 
-        exerciceLine.nbRepetition = data['nb_repetitions']
+        repetitions = json.loads(data['nb_repetitions'])
+        exerciceLine.nbSerie = data['nb_series']
+
+        if repetitions:
+            for key, repetition in repetitions.items():
+                exerciceLineRepetition = ExerciceLineRepetition()
+                exerciceLineRepetition.nbRepetition = int(repetition)
+                exerciceLineRepetition.serieNumber = int(key)
+                exerciceLineRepetition.exerciceLine = exerciceLine
+                exerciceLineRepetition.save()
+
         exerciceLine.programme = Programme.objects.get(id=data['programme_id'])
         exerciceLine.order = ExerciceLine.objects.filter(programme=exerciceLine.programme).count() + 1
 
@@ -177,6 +187,7 @@ def delete_exercice_line(request):
     else:
         return JsonResponse({"error": "error"}, status=400)
 
+
 def get_all_exercices(request):
     if request.method == 'GET':
         exercices = ExerciceImported.objects.all().values()
@@ -186,12 +197,13 @@ def get_all_exercices(request):
         zoneMuscles = ExerciceImported.objects.values('zoneMuscle').distinct()
 
         exercices = sorted(exercices, key=lambda k: k['nom'])
-        return render(request, 'worldCupShop/exercice/exercices.html', {'exercices': exercices, 'zoneMuscles': zoneMuscles})
+        return render(request, 'worldCupShop/exercice/exercices.html',
+                      {'exercices': exercices, 'zoneMuscles': zoneMuscles})
     else:
         return JsonResponse({"error": "error"}, status=400)
 
 
-#fonction qui recupere le nom suggere par l'utilisateur
+# fonction qui recupere le nom suggere par l'utilisateur
 def add_suggestion_exercice(request):
     if request.method == 'POST':
         data = request.POST
@@ -203,4 +215,3 @@ def add_suggestion_exercice(request):
         return JsonResponse({"success": "success"}, status=200)
     else:
         return JsonResponse({"error": "error"}, status=400)
-
