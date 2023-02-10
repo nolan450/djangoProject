@@ -119,7 +119,7 @@ def add_programme(request):
 class ProgrammeView(generic.DetailView):
     model = Programme
     form = AddExerciceLineForm()
-    template_name = 'worldcupshop/programme/programme_detail.html'
+    template_name = 'worldCupShop/programme/programme_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
