@@ -8,7 +8,6 @@ from manageSport import settings
 app_name = 'worldCupShop'
 urlpatterns = [
                   path('', views.index, name='index'),
-                  path("select2/", include("django_select2.urls")),
                   path('<int:pk>/', views.AddProgrammeView.as_view(), name='detail'),
                   path('<int:pk>/results/', views.ResultsView.as_view(), name='results'),
                   path('<int:question_id>/vote/', views.vote, name='vote'),
