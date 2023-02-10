@@ -94,3 +94,17 @@ class ExerciceLineRepetition(models.Model):
     serieNumber = models.IntegerField(default=0)
     nbRepetition = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+
+class Entrainement(models.Model):
+    label = models.CharField(max_length=100)
+    description = models.CharField(max_length=400)
+    programme = models.ForeignKey(Programme, on_delete=models.CASCADE)
+    date = models.DateTimeField(blank=True, null=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, default=1)
+
+    def __str__(self):
+        return self.label
+
+
+# class User(models.Model):

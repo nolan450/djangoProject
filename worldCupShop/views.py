@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.contrib.auth.views import LoginView, LogoutView
@@ -6,11 +7,12 @@ from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.template.context_processors import request
 from django.urls import reverse
+from django.utils import timezone
 from django.views import generic
 
 from worldCupShop.forms import AddProgrammeForm, AddExerciceLineForm
 from worldCupShop.models import Question, Choice, Programme, ExerciceImported, ExerciceLine, SuggestionNom, \
-    ExerciceLineRepetition
+    ExerciceLineRepetition, Entrainement
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -129,8 +131,14 @@ class ProgrammeView(generic.DetailView):
 
         context['zoneMuscles'] = zoneMuscle
         context['exercices'] = ExerciceImported.objects.all()
-        # retourne tous les exercicelines du programme filtré par ordre croissan
-        context['exerciceLines'] = ExerciceLine.objects.filter(programme=self.object).order_by('order')
+
+        exercice_line = ExerciceLine.objects.filter(programme=self.object).order_by('order')
+        # pour chaque exercice line, on récupère les repetitions triées par serieNumber
+        for exercice in exercice_line:
+            exercice.repetitions = ExerciceLineRepetition.objects.filter(exerciceLine=exercice).order_by('serieNumber')
+
+        context['exerciceLines'] = exercice_line
+
 
         return context
 
@@ -156,10 +164,10 @@ def add_exercice_line(request):
         exerciceLine = ExerciceLine()
         exerciceLine.exercice = ExerciceImported.objects.get(id=data['exercice_id'])
         exerciceLine.label = data['label']
-        # décoder le json test
 
         repetitions = json.loads(data['nb_repetitions'])
         exerciceLine.nbSerie = data['nb_series']
+        exerciceLine.save()
 
         if repetitions:
             for key, repetition in repetitions.items():
@@ -215,3 +223,28 @@ def add_suggestion_exercice(request):
         return JsonResponse({"success": "success"}, status=200)
     else:
         return JsonResponse({"error": "error"}, status=400)
+
+def get_planning(request):
+    if request.method == 'GET':
+        programmes = Programme.objects.filter(user=request.user)
+        entrainements = Entrainement.objects.filter(user=request.user)
+
+        return render(request, 'worldCupShop/programme/programme_calendar.html', {'programmes': programmes, 'entrainements': entrainements})
+    else:
+        return JsonResponse({"error": "error"}, status=400)
+
+def add_programme_to_calendar(request):
+    if request.method == 'POST':
+        data = request.POST
+        entrainement = Entrainement()
+        entrainement.label = data['title']
+        entrainement.programme = Programme.objects.get(id=data['programme_id'])
+        entrainement.date = data['date_debut']
+        current_date = datetime.datetime.now()
+        entrainement.user = request.user
+        entrainement.save()
+        return JsonResponse({"success": "success"}, status=200)
+    else:
+        return JsonResponse({"error": "error"}, status=400)
+
+
