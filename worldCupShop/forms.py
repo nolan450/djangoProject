@@ -14,9 +14,9 @@ class AddProgrammeForm(forms.Form):
             visible.field.widget.attrs['class'] = 'form-control'
             visible.field.widget.attrs['placeholder'] = visible.field.label
 
-    label = forms.CharField(label='Titre', max_length=100)
+    label = forms.CharField(label='Titre', max_length=100, required=True)
     description = forms.CharField(widget=forms.Textarea, label='Description', max_length=1000)
-    thumbnail = forms.ImageField(label='Image')
+    thumbnail = forms.ImageField(label='Image (facultatif)', required=False)
 
 
 # formulaire d'ajout de ligne d'exercice

@@ -218,7 +218,8 @@
                     <img src="{% static 'AdminLTE-3.2.0/dist/img/user2-160x160.jpg' %}" class="img-circle elevation-2" alt="User Image">
                 </div>
                 <div class="info">
-                    <a href="#" class="d-block">Alexander Pierce</a>
+                    <!-- Afficher le nom de l'utilisateur connecté -->
+                    <a href="#" class="d-block">{{ user.username }}</a>
                 </div>
             </div>
 
@@ -249,7 +250,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="{% url 'worldCupShop:programmes' %}" class="nav-link active">
+                                <a href="{% url 'worldCupShop:programmes' %}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Mes Programmes</p>
                                 </a>
@@ -951,10 +952,10 @@
 <script src="{% static 'AdminLTE-3.2.0/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
 <!-- AdminLTE App -->
 <script src="{% static 'AdminLTE-3.2.0/dist/js/adminlte.js' %}"></script>
-<!-- AdminLTE for demo purposes -->
+{% comment %}<!-- AdminLTE for demo purposes -->
 <script src="{% static 'AdminLTE-3.2.0/dist/js/demo.js' %}"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="{% static 'AdminLTE-3.2.0/dist/js/pages/dashboard.js' %}"></script>
+<script src="{% static 'AdminLTE-3.2.0/dist/js/pages/dashboard.js' %}"></script>{% endcomment %}
 <!-- DataTables  & Plugins -->
 <script src="{% static 'AdminLTE-3.2.0/plugins/datatables/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'AdminLTE-3.2.0/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
