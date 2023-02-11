@@ -229,7 +229,7 @@ def get_planning(request):
         programmes = Programme.objects.filter(user=request.user)
         entrainements = Entrainement.objects.filter(user=request.user)
 
-         return render(request, 'worldCupShop/programme/programme_calendar.html', {'programmes': programmes, 'entrainements': entrainements})
+        return render(request, 'worldCupShop/programme/programme_calendar.html', {'programmes': programmes, 'entrainements': entrainements})
     else:
         return JsonResponse({"error": "error"}, status=400)
 
