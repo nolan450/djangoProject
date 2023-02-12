@@ -7,6 +7,27 @@
 {% endblock %}
 
 {% block content %}
+    <div class="modal fade" id="modal-suppression-confirm" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Suppression d'un entrainement</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Voulez-vous vraiment supprimer l'entrainement ?</p>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                    <button id="modal-suppression-confirm-button" type="button" class="btn btn-primary">Confirmer la suppression</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
@@ -17,17 +38,37 @@
                         </div>
                         <div class="card-body">
                             <!-- the events -->
-                            <div id="external-events">{% comment %}
-                    <div class="external-event bg-success">Lunch</div>
-                    <div class="external-event bg-warning">Go home</div>
-                    <div class="external-event bg-info">Do homework</div>
-                    <div class="external-event bg-primary">Work on UI design</div>
-                    <div class="external-event bg-danger">Sleep tight</div>{% endcomment %}
+                            <div id="external-events">
                                 <div class="checkbox">
                                     <label for="drop-remove">
                                         <input type="checkbox" id="drop-remove">
                                         remove after drop
                                     </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Zone de suppression d'entrainements</h4>
+                        </div>
+                        <div id="divForDeletionTest" class="card-body">
+                            <!-- the events -->
+                            {% comment %}<div id="drop-zone" class="bg-light p-3 text-center">
+                                Déposez votre entrainement ici pour le supprimer
+                            </div>{% endcomment %}
+                            {% comment %}<div id="calendarTrash" class="calendar-trash">
+                                <div id="drop-zone" class="bg-light p-3 text-center">
+                                    Déposez votre entrainement ici pour le supprimer
+                                </div>
+                            </div>{% endcomment %}
+                            <div class="well well-sm" id="deleteEventsDiv">
+                                <legend>
+                                    Suppression d'entrainement
+                                </legend>
+                                <div id="drop-zone" class="bg-light p-3 text-center">
+                                    Déposez votre entrainement ici pour le supprimer (si rien ne se passe, veuillez réessayer)
                                 </div>
                             </div>
                         </div>
@@ -76,6 +117,13 @@
             <!-- /.col -->
         </div>
     </div>
+    <style>
+        .fc-view
+        {
+            width: 100%;
+            overflow: visible;
+        }
+    </style>
 {% endblock %}
 
 {% block script %}
@@ -85,8 +133,32 @@
     </script>
     <script src="{% static 'AdminLTE-3.2.0/plugins/moment/moment.min.js' %}"></script>
     <script src="{% static 'AdminLTE-3.2.0/plugins/fullcalendar/main.js' %}"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="{% static 'AdminLTE-3.2.0/plugins/sweetalert2/sweetalert2.min.js' %}"></script>
+    <!-- Toastr -->
+    <script src="{% static 'AdminLTE-3.2.0/plugins/toastr/toastr.min.js' %}"></script>
     <script>
-        $(function () {
+
+
+        $("#drop-zone").on("dragover", function(event) {
+            event.preventDefault();
+            console.log("test")
+        });
+
+        $("#drop-zone").on("drop", function(event) {
+            console.log("test")
+        });
+
+        var Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+
+        $(document).ready(function(){
+            $(function () {
 
             /* initialize the external events
              -----------------------------------------------------------------*/
@@ -156,70 +228,57 @@
                 //affichage des entrainements
                 events: [
                     {% for entrainement in entrainements %}
-                         {
-                             title          : '{{ entrainement.label }}',
-                             start          : new Date({{ entrainement.date|date:"Y" }}, {{ entrainement.date|date:"m" }} - 1, {{ entrainement.date|date:"d" }}),
-                             url: '{% url "worldCupShop:programmes_detail" entrainement.programme.id %}',
-                             allDay: true,
-                        },
-                        {% comment %}{
-                            title: '{{ entrainement.label }}',
-                            start: new Date('{{ entrainement.date|date:"Y-m-d " }}'),
+                        {
+                            title          : '{{ entrainement.label }}',
+                            start          : new Date({{ entrainement.date|date:"Y" }}, {{ entrainement.date|date:"m" }} - 1, {{ entrainement.date|date:"d" }}),
                             url: '{% url "worldCupShop:programmes_detail" entrainement.programme.id %}',
                             allDay: true,
-                        },{% endcomment %}
+                            data_entrainement_id: '{{ entrainement.id }}'
+                        },
                     {% endfor %}
                 ],
-                //Random default events
-                {% comment %}events: [
-                  {
-                    title          : 'All Day Event',
-                    start          : new Date(y, m, 1),
-                    backgroundColor: '#f56954', //red
-                    borderColor    : '#f56954', //red
-                    allDay         : true
-                  },
-                  {
-                    title          : 'Long Event',
-                    start          : new Date(y, m, d - 5),
-                    end            : new Date(y, m, d - 3),
-                    backgroundColor: '#f39c12', //yellow
-                    borderColor    : '#f39c12' //yellow
-                  },
-                  {
-                    title          : 'Meeting',
-                    start          : new Date(y, m, d, 10, 30),
-                    allDay         : false,
-                    backgroundColor: '#0073b7', //Blue
-                    borderColor    : '#0073b7' //Blue
-                  },
-                  {
-                    title          : 'Lunch',
-                    start          : new Date(y, m, d, 12, 0),
-                    end            : new Date(y, m, d, 14, 0),
-                    allDay         : false,
-                    backgroundColor: '#00c0ef', //Info (aqua)
-                    borderColor    : '#00c0ef' //Info (aqua)
-                  },
-                  {
-                    title          : 'Birthday Party',
-                    start          : new Date(y, m, d + 1, 19, 0),
-                    end            : new Date(y, m, d + 1, 22, 30),
-                    allDay         : false,
-                    backgroundColor: '#00a65a', //Success (green)
-                    borderColor    : '#00a65a' //Success (green)
-                  },
-                  {
-                    title          : 'Click for Google',
-                    start          : new Date(y, m, 28),
-                    end            : new Date(y, m, 29),
-                    url            : 'https://www.google.com/',
-                    backgroundColor: '#3c8dbc', //Primary (light-blue)
-                    borderColor    : '#3c8dbc' //Primary (light-blue)
-                  }
-                ],{% endcomment %}
                 editable  : true,
-                droppable : true, // this allows things to be dropped onto the calendar !!!
+                droppable : true,
+                eventDragStop: function(event, jsEvent, ui, view, removeEvents ) {
+                    // This condition makes it easier to test if the event is over the trash can using Jquery
+                    if($('div#divForDeletionTest').is(':hover')){
+                        // Confirmation popup
+                        $('#modal-suppression-confirm').modal('show');
+                        // If the user confirms the deletion
+                        $('#modal-suppression-confirm').on('click', '#modal-suppression-confirm-button', function(){
+                            // Delete the event
+                            //faire un appel ajax
+                            console.log("test")
+                            $.ajax({
+                                url: "{% url 'worldCupShop:delete_entrainement_from_calendar' %}",
+                                type: "POST",
+                                data: {
+                                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                                    entrainement_id: event.event.extendedProps.data_entrainement_id,
+                                },
+                                success: function (data) {
+                                    event.event.remove();
+                                    $('#modal-suppression-confirm').modal('hide');
+                                    $(document).Toasts('create', {
+                                        class: 'bg-success',
+                                        title: 'Suppression de l\'entrainement',
+                                        body: 'La suppression de l\'entrainement a bien été faites.',
+                                        autohide: true,
+                                        delay: 3000,
+                                    })
+                                },
+                                error: function (data) {
+                                    $('#modal-suppression-confirm').modal('hide');
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: 'Une erreur est survenue lors de la suppression de l\'entrainement.'
+                                    })
+                                }
+                            });
+
+                        });
+                    }
+                },
                 drop      : function(info) {
 
 
@@ -235,7 +294,7 @@
                             date_debut: info.dateStr,
                         },
                         success: function (data) {
-                            console.log(data);
+                            location.reload();
                         },
                         error: function (data) {
                             console.log('Error:', data);
@@ -317,6 +376,11 @@
                 $('#new-event').val('')
             })
         })
+        });
+
+
+
+
     </script>
 
 {% endblock %}

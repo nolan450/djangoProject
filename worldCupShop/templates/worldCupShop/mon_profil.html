@@ -39,7 +39,7 @@
         <div class="col-md-8 m-auto">
             <div class="card card-primary">
                 <div class="card-header">
-                    <h3 class="card-title">Programme</h3>
+                    <h3 class="card-title">Mon profil</h3>
 
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -48,11 +48,11 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form enctype="multipart/form-data" action="{% url 'worldCupShop:programmes_add' %}" method="post">
+                    <form enctype="multipart/form-data" action="{% url 'worldCupShop:profil_edit' %}" method="post">
                         {% csrf_token %}
                         {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary">Ajouter un programme</button>
-                        <a href="{% url 'worldCupShop:programmes' %}" class="btn btn-danger float-right">Retour</a>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <a href="{% url 'worldCupShop:index' %}" class="btn btn-danger float-right">Retour</a>
                     </form>
                 </div>
                 <!-- /.card-body -->
@@ -60,12 +60,14 @@
             <!-- /.card -->
         </div>
     </div>
+{% endblock %}
 
+{% block script %}
     <script>
-        $('.card-programme').on('click', function () {
-            self = $(this)
-            console.log(self.find('span').html());
-        })
-
+        $('.card-body p').css({"display": "flex", "flex-direction": "column"});
+        $('#id_first_name').val('{{ user.first_name }}');
+        $('#id_last_name').val('{{ user.last_name }}');
+        $('#id_username').val('{{ user.username }}');
+        $('#id_email').val('{{ user.email }}');
     </script>
 {% endblock %}

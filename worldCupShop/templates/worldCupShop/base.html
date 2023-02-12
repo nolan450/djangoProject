@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AdminLTE 3 | Dashboard</title>
+    <title>Manage Sport | Dashboard</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -188,11 +188,11 @@
                     <i class="fas fa-expand-arrows-alt"></i>
                 </a>
             </li>
-            <li class="nav-item">
+            {% comment %}<li class="nav-item">
                 <a class="nav-link" data-widget="control-sidebar" data-controlsidebar-slide="true" href="#" role="button">
                     <i class="fas fa-th-large"></i>
                 </a>
-            </li>
+            </li>{% endcomment %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'worldCupShop:logout' %}" role="button">
                     <i class="fas fa-power-off"></i>
@@ -207,7 +207,7 @@
         <!-- Brand Logo -->
         <a href="index3.html" class="brand-link">
             <img src="{% static 'images/1.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-            <span class="brand-text font-weight-light">AdminLTE 3</span>
+            <span class="brand-text font-weight-light">Manage Sport</span>
         </a>
 
         <!-- Sidebar -->
@@ -219,7 +219,7 @@
                 </div>
                 <div class="info">
                     <!-- Afficher le nom de l'utilisateur connecté -->
-                    <a href="#" class="d-block">{{ user.username }}</a>
+                    <a href="{% url 'worldCupShop:profil_edit' %}" class="d-block">{{ user.get_full_name|default:user.username }}</a>
                 </div>
             </div>
 
@@ -265,6 +265,12 @@
                                 <a href="{% url 'worldCupShop:programme_planning' %}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Planing des programmes</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'worldCupShop:my_stats' %}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Mes statistiques</p>
                                 </a>
                             </li>
                         </ul>

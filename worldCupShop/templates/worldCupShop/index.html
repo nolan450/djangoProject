@@ -7,15 +7,6 @@
             <li><span class="text-dark">Consulter les différentes pages liées à la nutrition.</span></li>
             <li><span class="text-dark">Consulter son programme de sport.</span></li>
         </ul>
-        {% comment %}{% if latest_question_list %}
-            <ul>
-                {% for question in latest_question_list %}
-                    <li><a href="{% url 'worldCupShop:detail'  question.id %}">{{ question.question_text }}</a></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No polls are available.</p>
-        {% endif %}{% endcomment %}
     </div>
 <script>
 </script>
