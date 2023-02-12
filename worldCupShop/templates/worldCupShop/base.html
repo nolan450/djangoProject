@@ -69,15 +69,12 @@
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{% url 'worldCupShop:index' %}" class="nav-link">Home</a>
             </li>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="#" class="nav-link">Contact</a>
-            </li>
         </ul>
 
         <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
             <!-- Navbar Search -->
-            <li class="nav-item">
+            {% comment %}<li class="nav-item">
                 <a class="nav-link" data-widget="navbar-search" href="#" role="button">
                     <i class="fas fa-search"></i>
                 </a>
@@ -96,10 +93,10 @@
                         </div>
                     </form>
                 </div>
-            </li>
+            </li>{% endcomment %}
 
             <!-- Messages Dropdown Menu -->
-            <li class="nav-item dropdown">
+            {% comment %}<li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="far fa-comments"></i>
                     <span class="badge badge-danger navbar-badge">3</span>
@@ -155,9 +152,9 @@
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
                 </div>
-            </li>
+            </li>{% endcomment %}
             <!-- Notifications Dropdown Menu -->
-            <li class="nav-item dropdown">
+            {% comment %}<li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="far fa-bell"></i>
                     <span class="badge badge-warning navbar-badge">15</span>
@@ -182,7 +179,7 @@
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
                 </div>
-            </li>
+            </li>{% endcomment %}
             <li class="nav-item">
                 <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                     <i class="fas fa-expand-arrows-alt"></i>
@@ -205,7 +202,7 @@
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <!-- Brand Logo -->
-        <a href="index3.html" class="brand-link">
+        <a href="{% url 'worldCupShop:index' %}" class="brand-link">
             <img src="{% static 'images/1.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
             <span class="brand-text font-weight-light">Manage Sport</span>
         </a>

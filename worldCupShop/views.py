@@ -24,7 +24,7 @@ from django.contrib.auth.models import User
 
 def index(request):
     if request.user.is_authenticated:
-        return IndexView.as_view()(request)
+        return ProgrammeListView.as_view()(request)
     else:
         return redirect('worldCupShop:login')
 
@@ -67,6 +67,18 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         """Return the last five published questions."""
         return Question.objects.order_by('-pub_date')[:5]
+
+
+class ProgrammeDeleteView(View):
+
+    def post(self, request):
+        programme_id = request.POST.get('programme_id')
+        programme = Programme.objects.get(id=programme_id)
+        programme.delete()
+        return JsonResponse({'status': 'ok'})
+
+    def get(self, request):
+        return JsonResponse({'status': 'ok'})
 
 
 class MyLoginView(LoginView):

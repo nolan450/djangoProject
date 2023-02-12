@@ -14,6 +14,7 @@ urlpatterns = [
                   path('accounts/register', views.register, name='register'),
                   path('accounts/profil_edit', views.ProfilEditView.as_view(), name='profil_edit'),
                   path('programmes/', views.ProgrammeListView.as_view(), name='programmes'),
+                  path('programmes/delete_programme', views.ProgrammeDeleteView.as_view(), name='delete_programme'),
                   path('programmes/exercices/get_exercices_by_zone_muscles', views.GetExercicesByZoneMusclesView.as_view(), name='get_exercices_by_zone_muscles'),
                   path('programmes/exercices/add_exercice_line', views.AddExerciceLineView.as_view(), name='add_exercice_line'),
                   path('programmes/add', views.ProgrammeAddView.as_view(), name='programmes_add'),
