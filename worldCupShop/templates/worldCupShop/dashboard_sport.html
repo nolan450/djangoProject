@@ -3,26 +3,26 @@
 
 {% block content %}
     <div class="mb-4">
-    <div class="btn-group float-right">
-                    <button type="button" class="btn btn-info">Action</button>
-                    <button type="button" class="btn btn-info dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
-                      <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
-                      <a class="dropdown-item" href="{% url 'worldCupShop:programmes_add' %}">Ajouter un programme</a>
-                      <a class="dropdown-item" href="#">Modifier l'ordre des programmes</a>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Separated link</a>
-                    </div>
-                  </div>
-    <h2 class="justify-content-center">Votre dashboard sportif</h2>
+        <div class="btn-group float-right">
+            <button type="button" class="btn btn-info">Action</button>
+            <button type="button" class="btn btn-info dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
+                <a class="dropdown-item" href="{% url 'worldCupShop:programmes_add' %}">Ajouter un programme</a>
+                {% comment %}<a class="dropdown-item" href="#">Modifier l'ordre des programmes</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Separated link</a>{% endcomment %}
+            </div>
+        </div>
+        <h2 class="justify-content-center">Votre dashboard sportif</h2>
 
     </div>
     <div class="row">
-    {% for programme in programmes %}
+        {% for programme in programmes %}
 
-        <div class="col-md-12 col-lg-6 col-xl-4">
+            <div class="col-md-12 col-lg-6 col-xl-4 border-1">
                 <div class="card mb-2 bg-gradient-dark">
                     <a href="{% url 'worldCupShop:programmes_detail' programme.id %}" class="card-programme">
                         {% if programme.thumbnail %}
@@ -30,22 +30,60 @@
                         {% else %}
                             <img class="card-img-top" src="/media/exercises/fitness_exercices_profil.jpg" alt="Dist Photo 1">
                         {% endif %}
-                  <div class="card-img-overlay d-flex flex-column justify-content-end">
-                    <h5 class="card-title text-primary text-white">{{ programme.label }}</h5>
-                    <p class="card-text text-white pb-2 pt-1">{{ programme.description }}</p>
-                    <a href="#" class="text-white">Last update 2 mins ago</a>
-                  </div>
+                        <div class="card-img-overlay d-flex flex-column justify-content-end">
+                            <h5 class="card-title text-primary text-white">{{ programme.label }}</h5>
+                            <p class="card-text text-white pb-2 pt-1">{{ programme.description }}</p>
+                            <a href="#" class="text-white">Last update 2 mins ago</a>
+                        </div>
                     </a>
                 </div>
-        </div>
-    {% endfor %}
+                <button type="button" class="btn btn-danger btn-sm float-right delete_programme" data-id="{{ programme.id }}">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+        {% endfor %}
     </div>
 
-    <script>
-    $('.card-programme').on('click', function () {
-        self = $(this)
-        console.log(self.find('span').html());
-    })
+    {% block script %}
+        <script>
+            $(document).ready(function () {
+                $('.card-programme').on('click', function () {
+                    self = $(this)
+                    console.log(self.find('span').html());
+                })
 
-    </script>
+                $('.delete_programme').on('click', function () {
+                    console.log('delete');
+                    self = $(this);
+
+                    $('#delete-modal').modal('show');
+
+                    $('.confirm_delete').on('click', function () {
+                        $('#delete-modal').modal('hide');
+
+                        $.ajax({
+                            url: "{% url 'worldCupShop:delete_programme' %}",
+                            type: 'POST',
+                            data: {
+                                csrfmiddlewaretoken: "{{ csrf_token }}",
+                                'programme_id': self.data('id'),
+                            },
+                            success: function (data) {
+                                $(document).Toasts('create', {
+                                    class: 'bg-success',
+                                    title: 'Suppression du programme',
+                                    body: 'La suppression du programme a bien été faite.'
+                                })
+                                setTimeout(function () {
+                                    location.reload();
+                                }, 2000);
+                                location.reload();
+                            }
+                        })
+
+                    })
+                })
+            });
+        </script>
+    {% endblock %}
 {% endblock %}

@@ -2,29 +2,29 @@ import datetime
 import json
 
 from django.contrib.auth.views import LoginView, LogoutView
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
 from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.template.context_processors import request
 from django.urls import reverse
 from django.utils import timezone
-from django.views import generic
+from django.views import generic, View
 
-from worldCupShop.forms import AddProgrammeForm, AddExerciceLineForm
+from worldCupShop.forms import AddProgrammeForm, AddExerciceLineForm, UserPersonalizeForm
 from worldCupShop.models import Question, Choice, Programme, ExerciceImported, ExerciceLine, SuggestionNom, \
     ExerciceLineRepetition, Entrainement
 
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import login
 from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
 
 
-# faire une fonction qui vérifie si l'utilisateur est connecté
-# si oui, on affiche la page d'accueil
-# si non, on affiche la page de login
 def index(request):
     if request.user.is_authenticated:
-        return IndexView.as_view()(request)
+        return ProgrammeListView.as_view()(request)
     else:
         return redirect('worldCupShop:login')
 
@@ -41,47 +41,44 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 
+class ProfilEditView(View):
+    form_class = UserPersonalizeForm()
+
+    def get(self, request):
+        return render(request, 'worldCupShop/mon_profil.html', context={"form": self.form_class})
+
+    def post(self, request):
+        form = UserPersonalizeForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.username = form.cleaned_data['username']
+            user.email = form.cleaned_data['email']
+            user.save()
+            return redirect('worldCupShop:index')
+        else:
+            return render(request, 'worldCupShop/mon_profil.html', context={"form": self.form_class})
+
+
 class IndexView(generic.ListView):
     template_name = 'worldCupShop/index.html'
-    context_object_name = 'latest_question_list'
 
     def get_queryset(self):
         """Return the last five published questions."""
         return Question.objects.order_by('-pub_date')[:5]
 
 
-class DetailView(generic.DetailView):
-    model = Question
-    template_name = 'worldCupShop/detail.html'
+class ProgrammeDeleteView(View):
 
+    def post(self, request):
+        programme_id = request.POST.get('programme_id')
+        programme = Programme.objects.get(id=programme_id)
+        programme.delete()
+        return JsonResponse({'status': 'ok'})
 
-class AddProgrammeView(generic.CreateView):
-    model = Programme
-    template_name = 'worldCupShop/detail.html'
-
-
-class ResultsView(generic.DetailView):
-    model = Question
-    template_name = 'worldCupShop/results.html'
-
-
-def vote(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    try:
-        selected_choice = question.choice_set.get(pk=request.POST['choice'])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(request, 'worldCupShop/detail.html', {
-            'question': question,
-            'error_message': "You didn't select a choice.",
-        })
-    else:
-        selected_choice.votes += 1
-        selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('worldCupShop:results', args=(question.id,)))
+    def get(self, request):
+        return JsonResponse({'status': 'ok'})
 
 
 class MyLoginView(LoginView):
@@ -93,15 +90,22 @@ class MyLogoutView(LogoutView):
     next_page = 'worldCupShop:index'
 
 
-def programmes(request):
-    programmes = Programme.objects.filter(user=request.user)
+class ProgrammeListView(View):
+    def get(self, request):
+        programmes = Programme.objects.filter(user=request.user)
+        return render(request, 'worldCupShop/dashboard_sport.html', context={"programmes": programmes})
 
-    return render(request, 'worldCupShop/dashboard_sport.html', context={"programmes": programmes})
 
+class ProgrammeAddView(View):
+    form_class = AddProgrammeForm
+    template_name = 'worldCupShop/add_programme.html'
 
-def add_programme(request):
-    if request.method == 'POST':
-        form = AddProgrammeForm(request.POST, request.FILES)
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             # creer un programme
             programme = Programme()
@@ -111,9 +115,7 @@ def add_programme(request):
             programme.user = request.user
             programme.save()
             return redirect('worldCupShop:programmes')
-    else:
-        form = AddProgrammeForm()
-    return render(request, 'worldCupShop/add_programme.html', {'form': form})
+        return render(request, self.template_name, {'form': form})
 
 
 class ProgrammeView(generic.DetailView):
@@ -139,13 +141,11 @@ class ProgrammeView(generic.DetailView):
 
         context['exerciceLines'] = exercice_line
 
-
         return context
 
 
-# fonction qui retourne tous les exercices sous forme de tableau en fonction de la zoneMuscle
-def get_exercices_by_zone_muscles(request):
-    if request.method == 'GET':
+class GetExercicesByZoneMusclesView(View):
+    def get(self, request):
         zoneMuscle = request.GET.get('zoneMuscle', None)
         exercices = ExerciceImported.objects.filter(zoneMuscle=zoneMuscle).values()
         for exercice in exercices:
@@ -153,13 +153,14 @@ def get_exercices_by_zone_muscles(request):
 
         exercices = sorted(exercices, key=lambda k: k['nom'])
         return JsonResponse(list(exercices), safe=False)
-    else:
+
+    def post(self, request):
         return JsonResponse({"error": "error"}, status=400)
 
 
 # fonction qui enregiste une ligne d'exercice envoyé en ajax dans data et qui enregistre dans la base de données
-def add_exercice_line(request):
-    if request.method == 'POST':
+class AddExerciceLineView(View):
+    def post(self, request):
         data = request.POST
         exerciceLine = ExerciceLine()
         exerciceLine.exercice = ExerciceImported.objects.get(id=data['exercice_id'])
@@ -177,27 +178,31 @@ def add_exercice_line(request):
                 exerciceLineRepetition.exerciceLine = exerciceLine
                 exerciceLineRepetition.save()
 
-        exerciceLine.programme = Programme.objects.get(id=data['programme_id'])
+        if data['programme_id']:
+            exerciceLine.programme_id = data['programme_id']
+
         exerciceLine.order = ExerciceLine.objects.filter(programme=exerciceLine.programme).count() + 1
 
         exerciceLine.save()
         return JsonResponse({"success": "success"}, status=200)
-    else:
+
+    def get(self, request):
         return JsonResponse({"error": "error"}, status=400)
 
 
-def delete_exercice_line(request):
-    if request.method == 'POST':
+class ExerciceLineDelete(View):
+    def post(self, request):
         data = request.POST
         exerciceLine = ExerciceLine.objects.get(id=data['exercice_line_id'])
         exerciceLine.delete()
         return JsonResponse({"success": "success"}, status=200)
-    else:
+
+    def get(self, request):
         return JsonResponse({"error": "error"}, status=400)
 
 
-def get_all_exercices(request):
-    if request.method == 'GET':
+class ExerciceRetrieval(View):
+    def get(self, request):
         exercices = ExerciceImported.objects.all().values()
         for exercice in exercices:
             exercice['nom'] = exercice['nom'].capitalize()
@@ -207,13 +212,13 @@ def get_all_exercices(request):
         exercices = sorted(exercices, key=lambda k: k['nom'])
         return render(request, 'worldCupShop/exercice/exercices.html',
                       {'exercices': exercices, 'zoneMuscles': zoneMuscles})
-    else:
+
+    def post(self, request):
         return JsonResponse({"error": "error"}, status=400)
 
 
-# fonction qui recupere le nom suggere par l'utilisateur
-def add_suggestion_exercice(request):
-    if request.method == 'POST':
+class SuggestionExerciceAdd(View):
+    def post(self, request):
         data = request.POST
         suggestion = SuggestionNom()
         suggestion.nom_suggere = data['nom_suggere']
@@ -221,20 +226,25 @@ def add_suggestion_exercice(request):
         suggestion.user = request.user
         suggestion.save()
         return JsonResponse({"success": "success"}, status=200)
-    else:
+
+    def get(self, request):
         return JsonResponse({"error": "error"}, status=400)
 
-def get_planning(request):
-    if request.method == 'GET':
+
+class PlanningGet(View):
+    def get(self, request):
         programmes = Programme.objects.filter(user=request.user)
         entrainements = Entrainement.objects.filter(user=request.user)
 
-        return render(request, 'worldCupShop/programme/programme_calendar.html', {'programmes': programmes, 'entrainements': entrainements})
-    else:
+        return render(request, 'worldCupShop/programme/programme_calendar.html',
+                      {'programmes': programmes, 'entrainements': entrainements})
+
+    def post(self, request):
         return JsonResponse({"error": "error"}, status=400)
 
-def add_programme_to_calendar(request):
-    if request.method == 'POST':
+
+class ProgrammeCalendarAdd(View):
+    def post(self, request):
         data = request.POST
         entrainement = Entrainement()
         entrainement.label = data['title']
@@ -243,8 +253,44 @@ def add_programme_to_calendar(request):
         current_date = datetime.datetime.now()
         entrainement.user = request.user
         entrainement.save()
-        return JsonResponse({"success": "success"}, status=200)
-    else:
+        # retourner l'id de l'entrainement
+        return JsonResponse({"success": "success", "id": entrainement.id}, status=200)
+
+    def get(self, request):
         return JsonResponse({"error": "error"}, status=400)
 
 
+def get_entrainements_par_mois(entrainements):
+    entrainements_par_mois = {}
+    for entrainement in entrainements:
+        mois = entrainement.date.strftime("%m")
+        if mois in entrainements_par_mois:
+            entrainements_par_mois[mois] += 1
+        else:
+            entrainements_par_mois[mois] = 1
+    return entrainements_par_mois
+
+
+class MyStatsView(View):
+    def get(self, request):
+        programmes = Programme.objects.filter(user=request.user)
+        entrainements = Entrainement.objects.filter(user=request.user)
+        # retourne le nombre d'entrainements par mois sous forme de dictionnaire
+        entrainements_par_mois = get_entrainements_par_mois(entrainements)
+
+        return render(request, 'worldCupShop/programme/programme_chart.html', {'programmes': programmes,
+                                                                               'entrainements': entrainements_par_mois})
+
+    def post(self, request):
+        return JsonResponse({"error": "error"}, status=400)
+
+
+class EntrainementDelete(View):
+    def post(self, request):
+        data = request.POST
+        entrainement = Entrainement.objects.get(id=data['entrainement_id'])
+        entrainement.delete()
+        return JsonResponse({"success": "success"}, status=200)
+
+    def get(self, request):
+        return JsonResponse({"error": "error"}, status=400)

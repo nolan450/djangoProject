@@ -30,7 +30,7 @@
                         <input id="same_nb_repetition" class="form-check-input" type="checkbox">
                         <label class="form-check-label">Nombre de répétitions différents pour toutes les séries</label>
                     </div>
-                <hr>
+                    <hr>
                     <div id="all_fields_series">
 
                     </div>
@@ -62,7 +62,7 @@
     </div>
 {% endblock %}
 {% block content %}
-    <div class="row mb-3 justify-content-end m-1">
+    {% comment %}<div class="row mb-3 justify-content-end m-1">
         <div class="btn-group">
             <button type="button" class="btn btn-info">Action</button>
             <button type="button" class="btn btn-info dropdown-toggle dropdown-icon" data-toggle="dropdown"
@@ -77,13 +77,12 @@
                 <a class="dropdown-item" href="#">Separated link</a>
             </div>
         </div>
-    </div>
+    </div>{% endcomment %}
     <div class="row">
         <div class="col-md-12">
             <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title">Programme</h3>
-
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                             <i class="fas fa-minus"></i>
@@ -97,7 +96,11 @@
                         </h1>
                         <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium,
                             adipisci.</p>
-                        <img class="card-img-top w-75" src="/media/{{ programme.thumbnail }}" alt="Dist Photo 1">
+                        {% if programme.thumbnail %}
+                            <img class="card-img-top w-75" src="/media/{{ programme.thumbnail }}" alt="Dist Photo 1">
+                        {% else %}
+                            <img class="card-img-top w-75" src="/media/exercises/fitness_exercices_profil.jpg" alt="Dist Photo 1">
+                        {% endif %}
                     </div>
                     <div id="accordion">
                         <div class="card mt-3">
@@ -129,21 +132,18 @@
                                                         <ul>
                                                             <li class="list-unstyled font-weight-bold">Nombre de série : {{ exerciceLine.nbSerie }}</li>
                                                             <hr>
-                                                            {% for repetition in exerciceLine.repetitions %}
+                                                            {% if exerciceLine.repetitions.count == 1 %}
+                                                                <li>Nombre de répétitions : {{ exerciceLine.repetitions.0.nbRepetition }}</li>
+                                                            {% else %}
+                                                                {% for repetition in exerciceLine.repetitions %}
                                                                 <li>Serie {{ repetition.serieNumber }} : {{ repetition.nbRepetition }}</li>
                                                             {% endfor %}
-                                                            {% comment %}<li>Temps de repos : {{ exerciceLine.tempsRepos }}</li>{% endcomment %}
+                                                            {% endif %}
                                                         </ul>
                                                         </p>
                                                         <p class="card-text mb-0"><small class="text-muted">Dernière modification il y a 3 minutes</small></p>
                                                         <p class="card-text"><small class="text-muted">Créée le {{ exerciceLine.created_at }}</small></p>
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <button type="button" class="btn btn-block btn-default" data-toggle="modal" data-target="#modal-exercice-line">
-                                                                    <i class="fas fa-edit"></i>
-                                                                    Modifier
-                                                                </button>
-                                                            </div>
+                                                        <div class="row justify-content-end">
                                                             <div class="col-md-6">
                                                                 <button data-id="{{ exerciceLine.id }}" type="button" class="btn btn-block btn-danger delete_button_exercice_line">
                                                                     <i class="fas fa-trash"></i>
@@ -160,54 +160,6 @@
                                 </div>
                             </div>
                         </div>
-                        {% comment %}<div class="card">
-                            <div class="card-header" id="headingTwo">
-                                <h5 class="mb-0">
-                                    <button class="btn btn-link collapsed" data-toggle="collapse"
-                                            data-target="#collapseTwo" aria-expanded="false"
-                                            aria-controls="collapseTwo">
-                                        Collapsible Group Item #2
-                                    </button>
-                                </h5>
-                            </div>
-                            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
-                                 data-parent="#accordion">
-                                <div class="card-body">
-                                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
-                                    richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor
-                                    brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt
-                                    aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et.
-                                    Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente
-                                    ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
-                                    farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them
-                                    accusamus labore sustainable VHS.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header" id="headingThree">
-                                <h5 class="mb-0">
-                                    <button class="btn btn-link collapsed" data-toggle="collapse"
-                                            data-target="#collapseThree" aria-expanded="false"
-                                            aria-controls="collapseThree">
-                                        Collapsible Group Item #3
-                                    </button>
-                                </h5>
-                            </div>
-                            <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
-                                 data-parent="#accordion">
-                                <div class="card-body">
-                                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
-                                    richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor
-                                    brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt
-                                    aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et.
-                                    Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente
-                                    ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
-                                    farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them
-                                    accusamus labore sustainable VHS.
-                                </div>
-                            </div>
-                        </div>{% endcomment %}
                     </div>
 
 
@@ -217,38 +169,6 @@
             <!-- /.card -->
         </div>
     </div>
-
-
-
-    {% comment %}<div class="col-md-6">
-          <div class="card card-secondary">
-            <div class="card-header">
-              <h3 class="card-title">Budget</h3>
-
-              <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                  <i class="fas fa-minus"></i>
-                </button>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-group">
-                <label for="inputEstimatedBudget">Estimated budget</label>
-                <input type="number" id="inputEstimatedBudget" class="form-control">
-              </div>
-              <div class="form-group">
-                <label for="inputSpentBudget">Total amount spent</label>
-                <input type="number" id="inputSpentBudget" class="form-control">
-              </div>
-              <div class="form-group">
-                <label for="inputEstimatedDuration">Estimated project duration</label>
-                <input type="number" id="inputEstimatedDuration" class="form-control">
-              </div>
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
-        </div>{% endcomment %}
 {% endblock %}
 {% block script %}
     <script>
@@ -260,7 +180,6 @@
 
             $('#select_zoneMuscle').on('change', function () {
                 self = $(this)
-                //faire un appel ajax vers ma view qui va me renvoyer les exercices
                 $.ajax({
                     url: "{% url 'worldCupShop:get_exercices_by_zone_muscles' %}",
                     type: 'GET',
@@ -300,11 +219,10 @@
                 }
                 else {
                     form.append('<label for="id_nbRepetition">Nombre de répétition &nbsp;:</label>');
-                        form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition">');
+                    form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition">');
                 }
             })
 
-            // si on coche la case pour avoir le même nombre de répétition pour toutes les séries
             $('#same_nb_repetition').on('change', function () {
                 self = $(this)
                 let nb_series = $('#id_nbSerie').val();
@@ -313,29 +231,27 @@
 
                 if(self.prop('checked')) {
                     if(nb_series !== 0) {
-                    for (let i = 1; i <= nb_series; i++) {
-                        console.log(nb_series)
-                        form.append('<label for="id_nbRepetition_' + i +'">Nombre de répétition pour la série ' + i + ' &nbsp;:</label>');
-                        form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition_'+ i +'" data-id="' + i +'">');
-                    }
+                        for (let i = 1; i <= nb_series; i++) {
+                            console.log(nb_series)
+                            form.append('<label for="id_nbRepetition_' + i +'">Nombre de répétition pour la série ' + i + ' &nbsp;:</label>');
+                            form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition_'+ i +'" data-id="' + i +'">');
+                        }
 
                     }
                 }
                 else {
                     form.append('<label for="id_nbRepetition">Nombre de répétition &nbsp;:</label>');
-                        form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition">');
+                    form.append('<input type="number" name="nbRepetition" class="form-control nb_repetitions" placeholder="Nombre de répétition" required="" id="id_nbRepetition">');
                 }
             })
 
-            //envoyer le formulaire avec un appel Ajax
-            $('#save_exercice_line').on('click', function () {
-                //faire un appel ajax vers ma view qui va me renvoyer les exercices
 
-                //je recupere toutes les data-id
+            $('#save_exercice_line').on('click', function () {
+
                 let nb_repetition = {};
                 $('.nb_repetitions').each(function () {
                     if ($(this).val() !== '') {
-                        nb_repetition[$(this).data('id')] = $(this).val();
+                        nb_repetition[$(this).data('id') ?? 1 ] = $(this).val();
                     }
                 })
 
@@ -384,7 +300,6 @@
                                 title: 'Suppression de la ligne d\'exercice',
                                 body: 'La suppression de la ligne d\'exercice a bien été faites.'
                             })
-                            //attendre 2 secondes avant de recharger la page
                             setTimeout(function () {
                                 location.reload();
                             }, 2000);
@@ -396,25 +311,6 @@
             })
 
         })
-
-
-        {% comment %}$('#save_exercice_line').on('click', function () {
-            self = $(this)
-            //faire un appel ajax vers ma view qui va me renvoyer les exercices
-            $.ajax({
-                url: "{% url 'worldCupShop:add_exercice_line' %}",
-                type: 'POST',
-                data: {
-                    'label': $('#id_label').val(),
-                    'nb_series': $('#id_nb_series').val(),
-                    'nb_repetitions': $('#id_nb_repetitions').val(),
-                    'exercice_id': $('#select_exercice_imported').find(':selected').data('id'),
-                },
-                success: function (data) {
-                    console.log(data);
-                }
-            })
-        }){% endcomment %}
 
     </script>
 {% endblock %}

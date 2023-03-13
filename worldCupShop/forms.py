@@ -31,3 +31,17 @@ class AddExerciceLineForm(forms.Form):
     label = forms.CharField(label='Titre', max_length=100)
     nbSerie = forms.IntegerField(label='Nombre de série')
     # nbRepetition = forms.IntegerField(label='Nombre de répétition')
+
+
+class UserPersonalizeForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['placeholder'] = visible.field.label
+
+    first_name = forms.CharField(label='Prénom', max_length=100, required=False)
+    last_name = forms.CharField(label='Nom', max_length=100, required=False)
+    username = forms.CharField(label='Nom d\'utilisateur', max_length=100, required=True)
+    email = forms.EmailField(label='Email', max_length=100, required=True)
+

@@ -1,0 +1,169 @@
+{% extends 'worldCupShop/base.html' %}
+{% load static %}
+
+
+{% block breadcrumb %}
+    <div class="modal fade" id="modal-exercice-line">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Ajout d'un exercice</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="form_exercice_line" class="modal-body">
+                    <label for="select_zoneMuscle">Zone Muscle</label>
+                    <select id="select_zoneMuscle" class="form-control">
+                        {% for zoneMuscle in zoneMuscles %}
+                            <option data-id="{{ zoneMuscle.zoneMuscle }}">{{ zoneMuscle.zoneMuscle }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="select_exercice_imported">Liste d'exercice</label>
+                    <select id="select_exercice_imported" class="form-control">
+                        {% for exercice in exercices %}
+                            <option data-id="{{ exercice.id }}">{{ exercice.nom }}</option>
+                        {% endfor %}
+                    </select>
+                    {{ form }}
+                    <div class="form-check">
+                        <input id="same_nb_repetition" class="form-check-input" type="checkbox">
+                        <label class="form-check-label">Nombre de répétitions différents pour toutes les séries</label>
+                    </div>
+                    <hr>
+                    <div id="all_fields_series">
+
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="save_exercice_line" type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Mes statistiques</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Mon Profil</a></li>
+                        <li class="breadcrumb-item active">Mes statistiques</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+{% endblock %}
+{% block content %}
+    <!-- colonne de 6 -->
+    <div class="card card-success">
+        <div class="card-header">
+            <h3 class="card-title">Nombre d'entrainements par mois de l'année en cours</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="position-relative mb-4">
+        <canvas id="sales-chart" height="200"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+{% block script %}
+    <script>
+
+        var ticksStyle = {
+            fontColor: '#495057',
+            fontStyle: 'bold'
+        }
+
+        var mode = 'index'
+        var intersect = true
+
+        var $salesChart = $('#sales-chart')
+
+        //console log sur chaque entraînements avec la clé et la valeur
+        console.log({{ entrainements|safe}})
+        nb_entrainements_par_mois = {{ entrainements|safe}}
+
+
+
+        // eslint-disable-next-line no-unused-vars
+        var salesChart = new Chart($salesChart, {
+            type: 'bar',
+            data: {
+                labels: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                datasets: [
+                    {
+                        backgroundColor: '#007bff',
+                        borderColor: '#007bff',
+                        data: [nb_entrainements_par_mois['01'] ?? 0, nb_entrainements_par_mois['02'] ?? 0, nb_entrainements_par_mois['03'] ?? 0, nb_entrainements_par_mois['04'] ?? 0, nb_entrainements_par_mois['05'] ?? 0, nb_entrainements_par_mois['06'] ?? 0, nb_entrainements_par_mois['07'] ?? 0, nb_entrainements_par_mois['08'] ?? 0, nb_entrainements_par_mois['09'] ?? 0, nb_entrainements_par_mois['10'] ?? 0, nb_entrainements_par_mois['11'] ?? 0, nb_entrainements_par_mois['12'] ?? 0]
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    mode: mode,
+                    intersect: intersect
+                },
+                hover: {
+                    mode: mode,
+                    intersect: intersect
+                },
+                legend: {
+                    display: false
+                },
+                scales: {
+                    yAxes: [{
+                        // display: false,
+                        gridLines: {
+                            display: true,
+                            lineWidth: '4px',
+                            color: 'rgba(0, 0, 0, .2)',
+                            zeroLineColor: 'transparent'
+                        },
+                        ticks: $.extend({
+                            beginAtZero: true,
+                            stepSize: 10,
+                            suggestedMax: 40,
+
+                            // Include a dollar sign in the ticks
+                            callback: function (value) {
+                                if (value >= 1000) {
+                                    value /= 1000
+                                    value += 'k'
+                                }
+
+                                return '' + value
+                            }
+                        }, ticksStyle)
+                    }],
+                    xAxes: [{
+                        display: true,
+                        gridLines: {
+                            display: false
+                        },
+                        ticks: ticksStyle
+                    }]
+                }
+            }
+        })
+
+    </script>
+{% endblock %}
