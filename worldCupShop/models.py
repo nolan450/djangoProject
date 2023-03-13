@@ -66,7 +66,7 @@ class ExerciceLine(models.Model):
     nbRepetition = models.IntegerField(default=0)
     nbSerie = models.IntegerField(default=0)
     exercice = models.ForeignKey(ExerciceImported, on_delete=models.CASCADE)
-    programme = models.ForeignKey(Programme, on_delete=models.CASCADE, default=1)
+    programme = models.ForeignKey(Programme, on_delete=models.CASCADE)
     order = models.IntegerField(default=1000)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
