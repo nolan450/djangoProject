@@ -179,7 +179,7 @@ class AddExerciceLineView(View):
                 exerciceLineRepetition.save()
 
         if data['programme_id']:
-            exerciceLine.programme_id = data['programme_id']
+            exerciceLine.programme = Programme.objects.get(id=data['programme_id'])
 
         exerciceLine.order = ExerciceLine.objects.filter(programme=exerciceLine.programme).count() + 1
 
